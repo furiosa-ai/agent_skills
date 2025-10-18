@@ -31,7 +31,7 @@ The YAML frontmatter in `SKILL.md` is critical - it tells Claude when to invoke 
 
 ### Git Commit Helper Architecture
 
-This skill implements a two-phase workflow:
+This skill implements a four-phase workflow with a unified final-diff-based approach:
 
 **Phase 1: Staged Changes → Commit Message**
 - `analyze_staged.py` extracts staged changes using `git diff --cached`
@@ -45,7 +45,39 @@ This skill implements a two-phase workflow:
 - Intermediate commits are reference only; restructuring is based on final state
 - Always creates backup branches before any destructive operations
 
-**Key Design Principle**: Only the final diff matters for restructuring. Intermediate WIP/fixup commits are ignored - the goal is to reorganize the final state into atomic, logical commits.
+**Phase 3: Pull Request Creation**
+- Uses `gh pr view` to check if PR already exists (if yes, suggests update workflow)
+- Reuses `find_base_branch.py` for base branch selection
+- **Reuses Phase 2 analysis if available** (same base, same diff) - no redundant work
+- Checks for PR template in common locations (`.github/PULL_REQUEST_TEMPLATE.md`, etc.)
+- Analyzes **final diff** (`base..HEAD`) to generate PR title and body - NOT individual commits
+- If template found, fills template structure; otherwise uses default format
+- Requires user confirmation before creating PR via `gh pr create`
+
+**Phase 4: Pull Request Update**
+- Uses `gh pr view --json` to get current PR information (including base branch)
+- Analyzes latest **final diff** from base to HEAD
+- **Reuses recent analysis if available** - efficient workflow
+- Generates new title/body using same final-diff-based logic as creation
+- Shows comparison between old and new content
+- Requires user confirmation before updating via `gh pr edit`
+- Warns if manual edits on GitHub will be overwritten
+
+**Key Design Principles**:
+1. **Final diff is the source of truth**: For both commit restructuring and PR description, only the final diff (`base..HEAD`) matters. Intermediate WIP/fixup commits are ignored.
+2. **Analysis reuse**: If user runs "PR 히스토리 정리해줘" followed by "PR 만들어줘", the same base and diff analysis is reused - no redundant computation.
+3. **PR templates respected**: Template detection checks `.github/PULL_REQUEST_TEMPLATE.md`, `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/*.md`, `docs/PULL_REQUEST_TEMPLATE.md`, and root `PULL_REQUEST_TEMPLATE.md`.
+4. **User confirmation required**: All destructive operations (restructure, PR create/update) require explicit user approval.
+
+**Efficient workflow example**:
+```
+> PR 히스토리 정리해줘
+# Runs find_base_branch.py + suggest_commits.py, analyzes final diff
+
+> PR 만들어줘
+# Reuses the base and final diff analysis from above!
+# No need to re-run scripts or re-analyze
+```
 
 ## Common Development Commands
 

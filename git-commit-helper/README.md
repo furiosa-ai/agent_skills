@@ -64,6 +64,99 @@ Suggested: 3 atomic commits
    +211 -272 (1 file)
 ```
 
+### 3. Create Pull Request
+
+Generate PR title and description from commit history and create a new pull request.
+
+**Triggers**: "PR 만들어줘", "PR 생성해줘", "create PR", "open PR", "PR open"
+
+**Example**:
+```bash
+# Ask Claude
+> PR 만들어줘
+
+# Claude finds base branch:
+Found 2 base branch candidate(s):
+1. origin/main (abc1234) - 3 commits
+
+Which base branch should I use? [1]
+
+# Claude analyzes commits and shows:
+I'll create a PR with the following:
+
+Title: Add user authentication system
+Base: origin/main
+
+Body:
+## Summary
+- Implement JWT-based authentication middleware
+- Add user login and registration endpoints
+- Include comprehensive test coverage
+
+## Changes
+- 8 files changed, +245 insertions, -12 deletions
+
+## Commits
+- abc1234 Add JWT token validation
+- def5678 Implement login endpoint
+- ghi9012 Add authentication tests
+
+🤖 Generated with Claude Code
+
+Should I proceed?
+
+# User confirms, Claude creates:
+✅ Pull request created: https://github.com/owner/repo/pull/456
+```
+
+**Features**:
+- Automatically detects and uses project's PR template (`.github/PULL_REQUEST_TEMPLATE.md`)
+- Analyzes **final diff** (NOT individual commits) to generate meaningful title and description
+- Follows Chris Beams' rules for PR title (imperative mood, 50 chars max)
+- Reuses analysis if recently ran "PR 히스토리 정리해줘"
+- Requires user confirmation before creating
+
+**Key principle**: Like commit restructuring, PR description is based on final diff (`base..HEAD`), not intermediate commits. This ensures the PR accurately describes what actually changed.
+
+### 4. Update Pull Request
+
+Refresh PR title and description based on latest commit history.
+
+**Triggers**: "PR 업데이트해줘", "PR 수정해줘", "update PR", "refresh PR"
+
+**Example**:
+```bash
+# Ask Claude
+> PR 업데이트해줘
+
+# Claude checks current PR:
+Current PR #456:
+Title: Add user authentication system
+Body preview: ## Summary\n- Implement JWT-based authentication...
+
+# After new commits, Claude suggests:
+Proposed update:
+Title: Add user authentication and authorization system
+Body preview: ## Summary\n- Implement JWT-based authentication...
+              - Add role-based access control...
+
+The body was generated using .github/PULL_REQUEST_TEMPLATE.md.
+
+Should I update the PR?
+
+# User confirms:
+✅ Pull request #456 updated
+View at: https://github.com/owner/repo/pull/456
+```
+
+**Features**:
+- Detects existing PR for current branch
+- Analyzes latest **final diff** to regenerate title/description
+- Preserves PR template structure
+- Shows comparison before updating
+- Warns if manual edits will be overwritten
+- Reuses analysis if recently ran with same base branch
+
 ## Core Principles
 
 ### Chris Beams' Seven Rules

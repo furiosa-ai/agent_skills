@@ -11,6 +11,8 @@ Professional Git commit message generation and PR history management following i
 **Features**:
 - Generate commit messages from staged changes following Chris Beams' seven rules
 - Restructure PR commit history based on final diff analysis
+- Create pull requests with auto-generated title and description
+- Update existing PR descriptions based on latest changes
 - Smart base branch detection with user confirmation (handles feature-from-feature branches)
 - Atomic commit suggestions with safety-first approach
 
@@ -21,6 +23,12 @@ Professional Git commit message generation and PR history management following i
 
 # Restructure PR history
 PR 히스토리 정리해줘
+
+# Create pull request
+PR 만들어줘
+
+# Update existing PR
+PR 업데이트해줘
 
 # If skill is not recognized, prefix with skill name:
 git-commit-helper 커밋 메시지 만들어줘
@@ -68,6 +76,8 @@ Implements Chris Beams' seven rules for great Git commit messages:
 - **Safety First**: Always create backup branches before restructuring
 - **Final Diff Based**: Analyze final changes, ignore intermediate commits
 - **Smart Detection**: Two-step workflow: find base branch candidates → user confirms → analyze PR
+- **PR Template Support**: Automatically detects and uses project's PR templates
+- **Analysis Reuse**: Efficient workflow when chaining restructure → PR creation
 
 **How Base Branch Detection Works**:
 1. `find_base_branch.py` scans all remotes and ranks candidates by commit count
@@ -118,6 +128,73 @@ Fixes #789
 3. Add authentication test coverage
    Files: tests/auth.test.js, tests/jwt.test.js
    +67 -0
+```
+
+### PR Creation
+
+**Request**: "PR 만들어줘"
+
+**Claude's Response**:
+```
+Found 2 base branch candidate(s):
+1. origin/main (abc1234) - 3 commits
+
+Analyzing final diff...
+
+I'll create a PR with the following:
+
+Title: Add JWT authentication system
+Base: origin/main
+
+Body:
+## Summary
+- Implement JWT-based authentication middleware
+- Add user login and registration endpoints
+- Include comprehensive test coverage
+
+## Changes
+- 8 files changed, +245 insertions, -12 deletions
+
+🤖 Generated with Claude Code
+
+Should I proceed?
+```
+
+**Result**: PR created at https://github.com/owner/repo/pull/456
+
+### PR Update
+
+**Request**: "PR 업데이트해줘" (after adding new commits)
+
+**Claude's Response**:
+```
+Current PR #456:
+Title: Add JWT authentication system
+
+Proposed update:
+Title: Add JWT authentication and authorization system
+
+Body updated with:
+- New role-based access control features
+- Updated statistics
+
+Should I update the PR?
+```
+
+**Result**: PR #456 updated with latest changes
+
+### Efficient Workflow
+
+**Combine restructure and PR creation**:
+```bash
+# Step 1: Clean up commits
+> PR 히스토리 정리해줘
+# Claude analyzes base and final diff
+
+# Step 2: Create PR immediately
+> PR 만들어줘
+# Claude reuses the analysis from step 1!
+# No redundant computation
 ```
 
 ## 🔧 Troubleshooting

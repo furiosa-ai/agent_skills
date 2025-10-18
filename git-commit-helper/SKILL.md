@@ -1,6 +1,6 @@
 ---
 name: git-commit-helper
-description: This skill should be used when creating commit messages from staged changes or restructuring commit history for PRs. Triggers include requests like "create commit message", "write commit", "clean up commits", "restructure PR history", or "organize commits". Applies Chris Beams' seven rules for professional commit messages and atomic commit principles.
+description: This skill should be used when creating commit messages from staged changes, restructuring commit history for PRs, creating pull requests, or updating existing pull requests. Triggers include requests like "create commit message", "write commit", "clean up commits", "restructure PR history", "organize commits", "create PR", "open PR", "PR 만들어줘", "PR 생성해줘", "update PR", "PR 업데이트해줘", or "PR 수정해줘". Applies Chris Beams' seven rules for professional commit messages and atomic commit principles.
 ---
 
 # Git Commit Helper
@@ -212,6 +212,242 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
    ```
 
 **Reference**: See `references/commit-guide.md` for atomic commit principles.
+
+### 3. Create Pull Request
+
+Generate PR title and description from commit history and create a new pull request.
+
+**When to use**: User wants to create a PR for their current branch.
+
+**Trigger phrases**:
+- "Create PR"
+- "Open PR"
+- "PR open"
+- "PR 만들어줘"
+- "PR 생성해줘"
+
+**IMPORTANT PRINCIPLES**:
+- **Check PR existence first**: Use `gh pr view` to check if PR already exists
+- **User confirmation required**: Always show generated title/body before creating
+- **Use PR template if available**: Respect project's PR template structure
+- **Chris Beams' rules apply**: PR title follows same rules as commit subject
+
+**Workflow**:
+
+1. **Check if PR already exists**:
+   ```bash
+   gh pr view --json number,title,body 2>&1
+   ```
+
+   If PR exists, suggest using update workflow instead.
+
+2. **Find base branch** (same as restructuring workflow):
+   ```bash
+   python scripts/find_base_branch.py --json
+   ```
+
+   Show candidates to user and let them select.
+
+3. **Analyze final diff** (NOT individual commits):
+
+   ⚠️ **IMPORTANT: Use final diff as source of truth, same as restructuring workflow**
+
+   If recently ran `suggest_commits.py` with same base:
+   - Reuse the analysis results (base_branch, total_diff, stats)
+   - Skip re-analysis for efficiency
+
+   Otherwise, analyze now:
+   ```bash
+   # Get final diff (source of truth)
+   git diff <base>..HEAD
+
+   # Get change statistics
+   git diff <base>..HEAD --stat
+
+   # Get commit list (reference only, NOT source of truth)
+   git log <base>..HEAD --pretty=format:"%h %s"
+   ```
+
+   **Key principle**: Individual commits are reference only. The final diff shows what actually changed and that's what matters for PR description.
+
+4. **Check for PR template**:
+
+   Check common locations in order:
+   - `.github/PULL_REQUEST_TEMPLATE.md`
+   - `.github/pull_request_template.md`
+   - `.github/PULL_REQUEST_TEMPLATE/*.md` (if multiple templates, list them and ask user)
+   - `docs/PULL_REQUEST_TEMPLATE.md`
+   - `PULL_REQUEST_TEMPLATE.md` (root)
+
+   If found, read the template content for structure.
+
+5. **Generate PR title**:
+
+   Analyze the **final diff** (NOT commit messages) to understand the overall change:
+   - Read the actual code changes to identify the high-level purpose
+   - Create title that describes the complete feature/fix/refactor
+   - Follow Chris Beams' rules: imperative mood, 50 chars max, capitalized, no period
+   - Examples:
+     - "Add user authentication system" (not "Add JWT + Add login + Fix tests")
+     - "Refactor database connection pooling" (describes the end state)
+
+   **Note**: Commit messages are hints, but final diff is the truth. If commits were messy WIP messages, ignore them and describe the actual final change.
+
+6. **Generate PR body**:
+
+   **If template found**:
+   - Read template content
+   - Preserve template structure (headers, checkboxes, sections)
+   - Fill in content based on **final diff analysis**:
+     - Description/Summary: Analyze final diff for high-level changes (what was added/changed/fixed)
+     - Changes/Modifications: List key logical changes from diff (e.g., "Authentication layer", "Database refactoring")
+     - Testing/Test Plan: Check if test files were added/modified in final diff
+     - Related Issues: Extract "Fixes #123" from commit messages (if present)
+   - Keep template placeholders if unable to fill
+   - Add Claude Code attribution at the end
+
+   **If no template**:
+   ```markdown
+   ## Summary
+   - [Key logical change 1 from final diff analysis]
+   - [Key logical change 2]
+   - [Key logical change 3]
+
+   ## Related Commits
+   - [Commit list for reference, if helpful]
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
+   ```
+
+   **Important**: The summary bullets should describe logical groups of changes from the final diff, NOT just list commit messages. For example:
+   - ❌ "Add JWT", "Fix tests", "Update docs" (commit-based)
+   - ✅ "Implement JWT authentication with role-based access control" (diff-based)
+
+7. **Show to user for confirmation**:
+   ```
+   I'll create a PR with the following:
+
+   Title: [generated title]
+   Base: [selected base branch]
+
+   Body:
+   [generated body with template structure if applicable]
+
+   Should I proceed? You can ask me to modify the title or body first.
+   ```
+
+8. **Create PR** (only after user approval):
+   ```bash
+   gh pr create --title "..." --body "..." --base <base-branch>
+   ```
+
+9. **Return PR URL**:
+   ```
+   ✅ Pull request created: https://github.com/owner/repo/pull/123
+   ```
+
+**Template handling notes**:
+- Preserve markdown formatting (headers, lists, checkboxes)
+- Keep template comments (<!-- ... -->) if present
+- If template has multiple variants in `.github/PULL_REQUEST_TEMPLATE/`, ask user which one to use
+- Always add Claude Code attribution unless template explicitly forbids it
+
+**Reference**: PR titles follow same seven rules as commit subjects.
+
+### 4. Update Pull Request
+
+Refresh PR title and description based on latest commit history.
+
+**When to use**: User wants to update existing PR with latest changes.
+
+**Trigger phrases**:
+- "Update PR"
+- "Refresh PR"
+- "PR 업데이트해줘"
+- "PR 수정해줘"
+
+**IMPORTANT PRINCIPLES**:
+- **Must have existing PR**: Check PR exists for current branch
+- **User confirmation required**: Show old vs new content before updating
+- **Respect PR template**: Use same template as creation workflow
+
+**Workflow**:
+
+1. **Get current PR information**:
+   ```bash
+   gh pr view --json number,title,body,baseRefName
+   ```
+
+   If no PR exists, suggest creation workflow instead.
+
+   Returns:
+   ```json
+   {
+     "number": 123,
+     "title": "Old PR title",
+     "body": "Old PR body...",
+     "baseRefName": "main"
+   }
+   ```
+
+2. **Analyze latest final diff** (using existing base from PR):
+
+   ⚠️ **IMPORTANT: Use final diff as source of truth**
+
+   If recently analyzed with `suggest_commits.py`:
+   - Reuse existing analysis results
+
+   Otherwise:
+   ```bash
+   # Get latest final diff (source of truth)
+   git diff <base>..HEAD
+
+   # Get latest statistics
+   git diff <base>..HEAD --stat
+
+   # Get commit list (reference only)
+   git log <base>..HEAD --pretty=format:"%h %s"
+   ```
+
+3. **Check for PR template** (same as creation workflow):
+   - Look in common locations
+   - Use template if found for consistency
+
+4. **Generate new title and body**:
+   - Same logic as creation workflow
+   - Analyze **final diff** (NOT commits) to describe overall change
+   - Use PR template if available
+
+5. **Show comparison to user**:
+   ```
+   Current PR #123:
+   Title: [old title]
+   Body preview: [first 3 lines...]
+
+   Proposed update:
+   Title: [new title]
+   Body preview: [first 3 lines...]
+
+   The body was generated using [template name / default format].
+
+   Should I update the PR? You can ask me to:
+   - Modify the title or body
+   - Show the full body comparison
+   - Cancel the update
+   ```
+
+6. **Update PR** (only after user approval):
+   ```bash
+   gh pr edit --title "..." --body "..."
+   ```
+
+7. **Confirm update**:
+   ```
+   ✅ Pull request #123 updated
+   View at: https://github.com/owner/repo/pull/123
+   ```
+
+**Note**: If user has manually edited PR description on GitHub, warn before overwriting. Consider asking if they want to preserve any manual additions.
 
 ## The Seven Rules (Quick Reference)
 
