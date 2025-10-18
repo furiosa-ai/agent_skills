@@ -6,10 +6,11 @@ IMPORTANT: Only the final diff (base..HEAD) matters. Intermediate commits
 are for reference only. The restructuring should reflect the final state.
 
 Usage:
-    python suggest_commits.py [base_branch] [--json]
+    python suggest_commits.py <base_commit> [--json]
 
 Arguments:
-    base_branch: Branch to compare against (default: auto-detect from origin/HEAD)
+    base_commit: Commit SHA or branch to compare against (REQUIRED)
+                 Use find_base_branch.py to find candidates
 
 Output (JSON):
     {
@@ -48,48 +49,6 @@ def run_git_command(cmd):
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         return None
-
-
-def get_all_remotes():
-    """Get list of all git remotes."""
-    output = run_git_command("git remote")
-    return output.split('\n') if output else []
-
-
-def branch_exists(branch_name):
-    """Check if a branch exists."""
-    return run_git_command(f"git rev-parse --verify {branch_name} 2>/dev/null") is not None
-
-
-def get_merge_base(base, head):
-    """Get merge base between two refs."""
-    return run_git_command(f"git merge-base {base} {head} 2>/dev/null")
-
-
-def get_commit_timestamp(commit):
-    """Get commit timestamp as integer."""
-    timestamp = run_git_command(f"git show -s --format=%ct {commit} 2>/dev/null")
-    return int(timestamp) if timestamp else 0
-
-
-def get_default_branch():
-    """Find most recent merge-base across all remotes."""
-    remotes = get_all_remotes()
-    most_recent_timestamp = 0
-    most_recent_base = None
-
-    for remote in remotes:
-        for branch in ['master', 'main']:
-            remote_branch = f"{remote}/{branch}"
-            if branch_exists(remote_branch):
-                merge_base = get_merge_base(remote_branch, "HEAD")
-                if merge_base:
-                    timestamp = get_commit_timestamp(merge_base)
-                    if timestamp > most_recent_timestamp:
-                        most_recent_timestamp = timestamp
-                        most_recent_base = merge_base
-
-    return most_recent_base
 
 
 def get_current_branch():
@@ -190,18 +149,16 @@ def main():
     output_json = '--json' in sys.argv
     args = [arg for arg in sys.argv[1:] if arg != '--json']
 
-    # Determine base branch
-    if args:
-        base_branch = args[0]
-    else:
-        base_branch = get_default_branch()
-        if base_branch is None:
-            error_msg = "Could not detect default branch. Please specify: python suggest_commits.py <base_branch>"
-            if output_json:
-                print(json.dumps({"error": error_msg}))
-            else:
-                print(f"Error: {error_msg}", file=sys.stderr)
-            sys.exit(1)
+    # Require base branch/commit argument
+    if not args:
+        error_msg = "Base commit required. Usage: python suggest_commits.py <base_commit> [--json]\nUse find_base_branch.py to find candidates."
+        if output_json:
+            print(json.dumps({"error": error_msg}))
+        else:
+            print(f"Error: {error_msg}", file=sys.stderr)
+        sys.exit(1)
+
+    base_branch = args[0]
 
     # Get current branch
     current_branch = get_current_branch()

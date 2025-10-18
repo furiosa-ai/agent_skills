@@ -32,7 +32,7 @@ Fixes #1234
 
 ### 2. PR History Restructuring
 
-Analyze final diff and suggest atomic commit organization.
+Analyze final diff and suggest atomic commit organization with smart base branch detection.
 
 **Triggers**: "PR 히스토리 정리해줘", "clean up commits", "restructure PR"
 
@@ -40,6 +40,15 @@ Analyze final diff and suggest atomic commit organization.
 ```bash
 # Ask Claude
 > PR 히스토리 정리해줘
+
+# Claude finds base branch candidates:
+Found 3 base branch candidate(s):
+
+1. upstream/master (99cafb6bc3) - 6 commits
+2. origin/master (0d7c549be3) - 4346 commits
+
+# User selects or specifies custom base:
+> Use 078889590a (refactor/aten-infrastructure-improvements)
 
 # Claude analyzes and suggests:
 Current: 7 commits with WIP/typo fixes
@@ -83,18 +92,27 @@ Benefits:
 - Provides restore commands
 - Non-destructive workflow
 
-### Auto-detection
+### Smart Base Detection
 
-Smart base branch detection:
+Two-step base branch detection with user confirmation:
+
+**Step 1 - Find candidates** (`find_base_branch.py`):
 ```python
 for remote in all_remotes:
     for branch in ['master', 'main']:
         merge_base = git merge-base remote/branch HEAD
-        if timestamp(merge_base) > most_recent:
-            most_recent = merge_base
+        commit_count = count commits from merge_base to HEAD
+        candidates.append({branch, merge_base, commit_count})
+
+# Rank by commit count (ascending) - closer bases first
 ```
 
-Works perfectly with forked repositories!
+**Step 2 - User selection**:
+- Shows ranked candidates with commit counts
+- User selects from list or specifies custom base
+- Handles feature-from-feature branch scenarios
+
+Works perfectly with forked repositories and complex branch hierarchies!
 
 ## Scripts
 
@@ -115,16 +133,47 @@ python scripts/analyze_staged.py --json
 }
 ```
 
+### find_base_branch.py
+
+Finds and ranks base branch candidates for PR history restructuring.
+
+```bash
+python scripts/find_base_branch.py [--json] [--limit N]
+```
+
+**Smart detection**: Analyzes merge-bases from all master/main branches, ranks by commit count (closer = better).
+
+**Output**:
+```json
+{
+  "current_branch": "feature/auth",
+  "candidates": [
+    {
+      "rank": 1,
+      "branch": "upstream/master",
+      "base_commit": "99cafb6bc3...",
+      "base_commit_short": "99cafb6bc3",
+      "base_commit_message": "Merge #14774",
+      "commit_count": 6
+    }
+  ]
+}
+```
+
+**Why user selection?**:
+- Feature branches from feature branches won't appear in candidates
+- Forked repositories may have multiple valid bases
+- User knows the actual parent branch better than heuristics
+
 ### suggest_commits.py
 
 Analyzes PR and suggests atomic commit restructuring.
 
 ```bash
-python scripts/suggest_commits.py --json
+python scripts/suggest_commits.py <base-commit> --json
 ```
 
-**Automatically detects base branch** (finds most recent merge-base across all remotes).
-⚠️ No need to specify base branch - auto-detection works in 99% of cases.
+**Requires base commit** from find_base_branch.py or user specification.
 
 **Output**:
 ```json
@@ -154,6 +203,23 @@ Fixes #789
 ```
 
 ### PR Restructuring
+
+**Workflow**:
+```bash
+# Step 1: Find base branch candidates
+> PR 히스토리 정리해줘
+
+Found 3 base branch candidate(s):
+1. upstream/master (99cafb6bc3) - 6 commits
+2. origin/master (0d7c549be3) - 4346 commits
+
+# Step 2: User selects correct base
+> Use upstream/master (99cafb6bc3)
+
+# Step 3: Analyze and suggest atomic commits
+Current: 7 commits with WIP/typo fixes
+Suggested: 3 atomic commits
+```
 
 **Before** (7 commits):
 ```

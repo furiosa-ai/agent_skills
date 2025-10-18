@@ -11,7 +11,7 @@ Professional Git commit message generation and PR history management following i
 **Features**:
 - Generate commit messages from staged changes following Chris Beams' seven rules
 - Restructure PR commit history based on final diff analysis
-- Automatic base branch detection for forked repositories
+- Smart base branch detection with user confirmation (handles feature-from-feature branches)
 - Atomic commit suggestions with safety-first approach
 
 **Usage**:
@@ -57,10 +57,11 @@ Implements Chris Beams' seven rules for great Git commit messages:
 - **Atomic Commits**: One logical change per commit
 - **Safety First**: Always create backup branches before restructuring
 - **Final Diff Based**: Analyze final changes, ignore intermediate commits
-- **Auto-detection**: Smart merge-base detection across all remotes
+- **Smart Detection**: Two-step base branch detection with user confirmation
 
 **Scripts**:
 - `analyze_staged.py`: Extract staged changes for commit message generation
+- `find_base_branch.py`: Find and rank base branch candidates with smart detection
 - `suggest_commits.py`: Analyze PR and suggest atomic commit restructuring
 
 ## 🛠️ Development

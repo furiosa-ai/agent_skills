@@ -85,29 +85,54 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 
 **Workflow**:
 
-1. **Extract PR information**:
+1. **Find base branch candidates and let user select**:
 
-   ⚠️ **IMPORTANT: DO NOT pass base branch argument**
+   ⚠️ **IMPORTANT: Always let user select the correct base branch**
 
-   The script automatically detects the correct base branch by finding the most recent merge-base across all remotes.
-
-   **✅ CORRECT - Use auto-detection (NO arguments)**:
+   **Step 1 - Find candidates**:
    ```bash
-   python scripts/suggest_commits.py --json
+   python scripts/find_base_branch.py
    ```
 
-   **❌ WRONG - DO NOT specify base branch**:
-   ```bash
-   # DON'T DO THIS unless explicitly instructed by user
-   python scripts/suggest_commits.py master --json
-   python scripts/suggest_commits.py main --json
-   python scripts/suggest_commits.py origin/master --json
+   **Step 2 - Show candidates to user**:
+
+   Example output:
+   ```
+   Current branch: refactor/aten-macro-refactoring
+
+   Found 3 base branch candidate(s):
+
+   1. upstream/master
+      Base: 99cafb6bc3 (Merge #14774)
+      Commits: 6
+
+   2. origin/master
+      Base: 0d7c549be3 (Merge #14116)
+      Commits: 4346
    ```
 
-   **When to specify base branch** (RARE):
-   - ONLY if the script explicitly returns an error: "Could not detect default branch"
-   - ONLY if user explicitly provides a specific base branch name
-   - Auto-detection works in 99% of cases across all repository configurations
+   **Step 3 - Ask user to select**:
+   - "Which base branch is correct?"
+   - "Or specify a different base (branch name or commit SHA)"
+
+   **Step 4 - Run with selected base**:
+   ```bash
+   # If user selects candidate #1 (99cafb6bc3)
+   python scripts/suggest_commits.py 99cafb6bc3 --json
+
+   # If user specifies custom base (e.g., refactor/aten-infrastructure-improvements)
+   python scripts/suggest_commits.py refactor/aten-infrastructure-improvements --json
+   ```
+
+   **Why user selection is needed**:
+   - Feature branches from feature branches won't appear in candidates (only master/main)
+   - User knows the actual parent branch (e.g., `078889590a` in this case)
+   - Commit count helps identify the closest branch
+
+   **Common scenarios**:
+   - ✅ Direct from master → Select candidate #1 (lowest commit count)
+   - ⚠️ Feature from feature → Specify parent feature branch manually
+   - ⚠️ Forked repo → Check which remote is correct
 
    Returns:
    ```json
@@ -249,10 +274,17 @@ Fixes #789
 **User**: "PR 커밋 히스토리 정리해줘"
 
 **Action**:
-1. Run `suggest_commits.py --json` (⚠️ NO base branch argument)
-2. Analyze `total_diff` (final changes): Auth system + tests
-3. Review `current_commits`: 7 commits including WIP/typos
-4. Identify final diff has only 3 logical changes
+1. Run `find_base_branch.py` to get candidates
+2. **Show candidates to user**:
+   ```
+   1. upstream/master (99cafb6bc3) - 6 commits
+   2. origin/master (0d7c549be3) - 4346 commits
+   ```
+3. **Ask user**: "Which base is correct? Or specify a different one?"
+4. **User responds**: "Use `078889590a` (refactor/aten-infrastructure-improvements)"
+5. Run `suggest_commits.py 078889590a --json`
+6. Analyze `total_diff`: 1 commit with macro refactoring changes
+7. Suggest atomic commit organization if needed
 
 **Output**:
 ```
