@@ -25,6 +25,12 @@ PR 히스토리 정리해줘
 
 ## 🚀 Installation
 
+### Requirements
+
+- **Python**: 3.6 or higher
+- **Git**: 2.23 or higher
+- **Claude Code**: Latest version recommended
+
 ### Quick Install
 
 ```bash
@@ -57,12 +63,89 @@ Implements Chris Beams' seven rules for great Git commit messages:
 - **Atomic Commits**: One logical change per commit
 - **Safety First**: Always create backup branches before restructuring
 - **Final Diff Based**: Analyze final changes, ignore intermediate commits
-- **Smart Detection**: Two-step base branch detection with user confirmation
+- **Smart Detection**: Two-step workflow: find base branch candidates → user confirms → analyze PR
+
+**How Base Branch Detection Works**:
+1. `find_base_branch.py` scans all remotes and ranks candidates by commit count
+2. User selects the correct base (important for feature-from-feature branches)
+3. `suggest_commits.py` analyzes the final diff against selected base
 
 **Scripts**:
 - `analyze_staged.py`: Extract staged changes for commit message generation
 - `find_base_branch.py`: Find and rank base branch candidates with smart detection
 - `suggest_commits.py`: Analyze PR and suggest atomic commit restructuring
+
+## 💡 Usage Examples
+
+### Commit Message Generation
+
+**Input**: Staged changes fixing a bug
+```bash
+커밋 메시지 만들어줘
+```
+
+**Output**:
+```
+Prevent null pointer in token validation
+
+Token validator crashed when receiving null tokens from
+malformed requests. Add null check at validation entry point
+and return 400 Bad Request for invalid input.
+
+Fixes #789
+```
+
+### PR History Restructuring
+
+**Before**: 7 commits with "WIP", "fix typo", "oops" messages
+
+**After Request**: "PR 히스토리 정리해줘"
+
+**Result**: 3 atomic commits:
+```
+1. Add JWT authentication system
+   Files: auth.js, middleware/auth.js, utils/jwt.js
+   +83 -0
+
+2. Add protected route middleware
+   Files: middleware/protected.js, routes/api.js
+   +42 -5
+
+3. Add authentication test coverage
+   Files: tests/auth.test.js, tests/jwt.test.js
+   +67 -0
+```
+
+## 🔧 Troubleshooting
+
+### Script Execution Errors
+
+**Problem**: `python: command not found`
+```bash
+# Solution: Use python3 explicitly
+python3 ~/.claude/skills/git-commit-helper/scripts/analyze_staged.py --json
+```
+
+**Problem**: No base branch candidates found
+```bash
+# Solution: Ensure you have remote branches
+git fetch --all
+python scripts/find_base_branch.py
+```
+
+**Problem**: Script fails with "No commits found"
+```bash
+# Solution: Verify base branch exists
+git log <base_branch>..HEAD  # Should show commits
+```
+
+### Permission Issues
+
+**Problem**: Permission denied on scripts
+```bash
+# Solution: Make scripts executable
+chmod +x ~/.claude/skills/git-commit-helper/scripts/*.py
+```
 
 ## 🔄 Updating Skills
 

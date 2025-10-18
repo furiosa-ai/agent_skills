@@ -252,7 +252,7 @@ Suggested: 3 atomic commits
 ### Via Plugin Marketplace
 
 ```bash
-/plugin marketplace add <username>/agent_skills
+/plugin marketplace add https://github.com/furiosa-ai/agent_skills
 /plugin install git-commit-helper
 ```
 

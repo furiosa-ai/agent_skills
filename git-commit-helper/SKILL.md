@@ -234,11 +234,17 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 - Returns: Files, stats, and full diff of staged changes
 - Claude analyzes diff to generate meaningful commit message
 
+**find_base_branch.py**: Find base branch candidates for PR analysis
+- Usage: `python scripts/find_base_branch.py --json [--limit N]`
+- Returns: Ranked list of base branch candidates with commit counts
+- Scans all remote branches and finds merge-bases, sorted by proximity (fewer commits = closer base)
+- User selects the correct base from candidates before running suggest_commits.py
+
 **suggest_commits.py**: Extract PR changes for history restructuring
-- Usage: `python scripts/suggest_commits.py --json` (⚠️ NO base branch argument - uses auto-detection)
+- Usage: `python scripts/suggest_commits.py <base_commit> --json` (⚠️ Base branch/commit is REQUIRED)
 - Returns: Final diff (source of truth), current commits (reference), backup commands
 - Claude analyzes final diff to suggest atomic commit organization
-- Base branch is automatically detected from merge-base across all remotes
+- Use `find_base_branch.py` first to find candidates, then user selects the correct base
 
 ### references/
 
