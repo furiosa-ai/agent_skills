@@ -11,7 +11,9 @@
       "name": "git-commit-helper",
       "description": "Generate professional commit messages and restructure PR history following Chris Beams' seven rules",
       "version": "1.0.0",
-      "author": "Boncheol Gu",
+      "author": {
+        "name": "Boncheol Gu"
+      },
       "source": "./plugins/git-commit-helper",
       "keywords": [
         "git",
