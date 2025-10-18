@@ -132,6 +132,41 @@ git push
 # /plugin install git-commit-helper (reinstalls latest)
 ```
 
+## Documentation Consistency Principles
+
+When adding or modifying features, maintain consistency across all documentation layers:
+
+### Three-Layer Documentation Pattern
+
+1. **`SKILL.md`** - Claude's execution guide
+   - Update YAML frontmatter `description` with new triggers
+   - Add detailed workflow with numbered steps
+   - Include ⚠️ IMPORTANT principles and key design decisions
+   - Provide code examples for each step
+
+2. **Root `README.md`** - Combined user documentation and project overview
+   - Add feature to Available Skills → Features list
+   - Add trigger to Usage examples section
+   - Include realistic usage examples in 💡 Usage Examples
+   - Update Core Principles if new design pattern introduced
+   - Keep both project overview and skill details in single file
+
+3. **`CLAUDE.md`** - Architecture documentation (this file)
+   - Update architecture description (e.g., "four-phase workflow")
+   - Document key design principles and rationale
+   - Add to Common Development Commands if needed
+
+### Consistency Checklist
+
+When adding a feature, ensure:
+- [ ] All three documentation files updated
+- [ ] Trigger phrases consistent across all files
+- [ ] Examples use same scenario/data
+- [ ] Design principles align with existing patterns
+- [ ] Terminology matches (e.g., "final diff", "base branch")
+
+**Note**: We maintain a single README at the root instead of per-skill READMEs to avoid duplication and ensure consistency.
+
 ## Adding New Skills
 
 1. Create skill directory at root: `new-skill/`
@@ -141,7 +176,7 @@ git push
    - Add skill path to appropriate plugin's `skills` array
    - Increment `metadata.version`
 5. Test locally before committing
-6. Update main `README.md` with skill documentation
+6. Update root `README.md` with skill documentation (no per-skill README needed)
 
 ## Script Requirements
 
