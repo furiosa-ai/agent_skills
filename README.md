@@ -21,6 +21,10 @@ Professional Git commit message generation and PR history management following i
 
 # Restructure PR history
 PR 히스토리 정리해줘
+
+# If skill is not recognized, prefix with skill name:
+git-commit-helper 커밋 메시지 만들어줘
+git-commit-helper PR 히스토리 정리해줘
 ```
 
 ## 🚀 Installation
@@ -35,7 +39,7 @@ PR 히스토리 정리해줘
 
 ```bash
 /plugin marketplace add https://github.com/furiosa-ai/agent_skills
-/plugin install git-tools
+/plugin install git-commit-helper
 ```
 
 ### Manual Install
@@ -153,11 +157,11 @@ After the marketplace is updated on GitHub, update your local installation:
 
 ```bash
 # Reinstall to get latest changes
-/plugin install git-tools
+/plugin install git-commit-helper
 
 # Or force reinstall
-/plugin uninstall git-tools
-/plugin install git-tools
+/plugin uninstall git-commit-helper
+/plugin install git-commit-helper
 ```
 
 ## 🛠️ Development
