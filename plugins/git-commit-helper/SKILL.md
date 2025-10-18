@@ -88,7 +88,8 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 1. **Extract PR information**:
    ```bash
    python scripts/suggest_commits.py --json
-   # Or specify base: python scripts/suggest_commits.py develop --json
+   # Auto-detects base branch (origin/HEAD → main → master)
+   # Only specify base if auto-detection fails: python scripts/suggest_commits.py <base> --json
    ```
 
    Returns:
