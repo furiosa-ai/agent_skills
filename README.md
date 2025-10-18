@@ -28,14 +28,14 @@ PR 히스토리 정리해줘
 ### Quick Install
 
 ```bash
-/plugin marketplace add <your-github-username>/agent_skills
+/plugin marketplace add https://github.com/furiosa-ai/agent_skills
 /plugin install git-commit-helper
 ```
 
 ### Manual Install
 
 ```bash
-git clone https://github.com/<your-github-username>/agent_skills
+git clone https://github.com/furiosa-ai/agent_skills
 cp -r agent_skills/plugins/git-commit-helper ~/.claude/skills/
 ```
 

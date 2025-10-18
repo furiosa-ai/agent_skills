@@ -86,11 +86,28 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 **Workflow**:
 
 1. **Extract PR information**:
+
+   ⚠️ **IMPORTANT: DO NOT pass base branch argument**
+
+   The script automatically detects the correct base branch by finding the most recent merge-base across all remotes.
+
+   **✅ CORRECT - Use auto-detection (NO arguments)**:
    ```bash
    python scripts/suggest_commits.py --json
-   # Auto-detects base branch (origin/HEAD → main → master)
-   # Only specify base if auto-detection fails: python scripts/suggest_commits.py <base> --json
    ```
+
+   **❌ WRONG - DO NOT specify base branch**:
+   ```bash
+   # DON'T DO THIS unless explicitly instructed by user
+   python scripts/suggest_commits.py master --json
+   python scripts/suggest_commits.py main --json
+   python scripts/suggest_commits.py origin/master --json
+   ```
+
+   **When to specify base branch** (RARE):
+   - ONLY if the script explicitly returns an error: "Could not detect default branch"
+   - ONLY if user explicitly provides a specific base branch name
+   - Auto-detection works in 99% of cases across all repository configurations
 
    Returns:
    ```json
@@ -193,9 +210,10 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 - Claude analyzes diff to generate meaningful commit message
 
 **suggest_commits.py**: Extract PR changes for history restructuring
-- Usage: `python scripts/suggest_commits.py [base_branch] --json`
+- Usage: `python scripts/suggest_commits.py --json` (⚠️ NO base branch argument - uses auto-detection)
 - Returns: Final diff (source of truth), current commits (reference), backup commands
 - Claude analyzes final diff to suggest atomic commit organization
+- Base branch is automatically detected from merge-base across all remotes
 
 ### references/
 
@@ -231,7 +249,7 @@ Fixes #789
 **User**: "PR 커밋 히스토리 정리해줘"
 
 **Action**:
-1. Run `suggest_commits.py --json`
+1. Run `suggest_commits.py --json` (⚠️ NO base branch argument)
 2. Analyze `total_diff` (final changes): Auth system + tests
 3. Review `current_commits`: 7 commits including WIP/typos
 4. Identify final diff has only 3 logical changes

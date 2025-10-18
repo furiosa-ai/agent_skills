@@ -120,10 +120,11 @@ python scripts/analyze_staged.py --json
 Analyzes PR and suggests atomic commit restructuring.
 
 ```bash
-python scripts/suggest_commits.py [base_branch] --json
+python scripts/suggest_commits.py --json
 ```
 
-**Auto-detects base** if not specified (finds most recent merge-base).
+**Automatically detects base branch** (finds most recent merge-base across all remotes).
+⚠️ No need to specify base branch - auto-detection works in 99% of cases.
 
 **Output**:
 ```json
