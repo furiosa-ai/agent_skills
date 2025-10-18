@@ -29,14 +29,14 @@ PR 히스토리 정리해줘
 
 ```bash
 /plugin marketplace add https://github.com/furiosa-ai/agent_skills
-/plugin install git-commit-helper
+/plugin install git-tools
 ```
 
 ### Manual Install
 
 ```bash
 git clone https://github.com/furiosa-ai/agent_skills
-cp -r agent_skills/plugins/git-commit-helper ~/.claude/skills/
+cp -r agent_skills/git-commit-helper ~/.claude/skills/
 ```
 
 ## 📚 Skills Documentation
@@ -64,22 +64,51 @@ Implements Chris Beams' seven rules for great Git commit messages:
 - `find_base_branch.py`: Find and rank base branch candidates with smart detection
 - `suggest_commits.py`: Analyze PR and suggest atomic commit restructuring
 
+## 🔄 Updating Skills
+
+After the marketplace is updated on GitHub, update your local installation:
+
+```bash
+# Reinstall to get latest changes
+/plugin install git-tools
+
+# Or force reinstall
+/plugin uninstall git-tools
+/plugin install git-tools
+```
+
 ## 🛠️ Development
 
 ### Adding New Skills
 
-1. Create skill directory in `plugins/`
+1. Create skill directory at root level (e.g., `new-skill/`)
 2. Add `SKILL.md` with YAML frontmatter
-3. Update `marketplace.json`
-4. Submit PR
+3. Update `.claude-plugin/marketplace.json` to include skill in `skills` array
+4. Update version in `metadata.version`
+5. Submit PR
 
 ### Skill Structure
 
 ```
-plugins/your-skill/
+your-skill/
 ├── SKILL.md              # Skill definition with YAML frontmatter
 ├── references/           # Optional: Reference documentation
 └── scripts/              # Optional: Helper scripts
+```
+
+### Repository Structure
+
+Following Anthropic's agent-skills pattern:
+
+```
+agent_skills/
+├── .claude-plugin/
+│   └── marketplace.json  # Plugin marketplace configuration
+├── git-commit-helper/    # Skills at root level
+│   ├── SKILL.md
+│   ├── scripts/
+│   └── references/
+└── README.md
 ```
 
 ## 📄 License

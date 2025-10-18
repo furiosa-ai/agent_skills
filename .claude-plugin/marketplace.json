@@ -1,26 +1,21 @@
 {
   "name": "agent-skills",
-  "description": "Community-curated collection of Claude Code skills and agent tools",
-  "version": "1.0.0",
   "owner": {
     "name": "FuriosaAI",
     "email": "engineering@furiosa.ai"
   },
+  "metadata": {
+    "description": "Community-curated collection of Claude Code skills and agent tools",
+    "version": "1.1.0"
+  },
   "plugins": [
     {
-      "name": "git-commit-helper",
-      "description": "Generate professional commit messages and restructure PR history following Chris Beams' seven rules",
-      "version": "1.0.0",
-      "author": {
-        "name": "Boncheol Gu"
-      },
-      "source": "./plugins/git-commit-helper",
-      "keywords": [
-        "git",
-        "commit",
-        "pr",
-        "code-review",
-        "best-practices"
+      "name": "git-tools",
+      "description": "Git workflow enhancement tools including commit message generation and PR history management",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./git-commit-helper"
       ]
     }
   ]

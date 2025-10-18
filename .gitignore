@@ -28,3 +28,6 @@ htmlcov/
 # Temporary
 *.log
 *.tmp
+
+# Claude Code local development
+.claude/
