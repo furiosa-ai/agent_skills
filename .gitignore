@@ -31,3 +31,6 @@ htmlcov/
 
 # Claude Code local development
 .claude/
+
+# Beads issue tracking (local)
+.beads/
