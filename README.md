@@ -47,7 +47,6 @@ git-commit-helper PR 히스토리 정리해줘
 
 ```bash
 /plugin marketplace add https://github.com/furiosa-ai/agent_skills
-/plugin install git-commit-helper
 ```
 
 ### Manual Install
@@ -82,12 +81,11 @@ Implements Chris Beams' seven rules for great Git commit messages:
 **How Base Branch Detection Works**:
 1. `find_base_branch.py` scans all remotes and ranks candidates by commit count
 2. User selects the correct base (important for feature-from-feature branches)
-3. `suggest_commits.py` analyzes the final diff against selected base
+3. `analyze_diff.py` analyzes the final diff against selected base with smart fallback for large changes
 
 **Scripts**:
-- `analyze_staged.py`: Extract staged changes for commit message generation
+- `analyze_diff.py`: Unified diff analyzer supporting both staged changes and PR analysis with three-tier fallback for large diffs
 - `find_base_branch.py`: Find and rank base branch candidates with smart detection
-- `suggest_commits.py`: Analyze PR and suggest atomic commit restructuring
 
 ## 💡 Usage Examples
 
@@ -204,7 +202,7 @@ Should I update the PR?
 **Problem**: `python: command not found`
 ```bash
 # Solution: Use python3 explicitly
-python3 ~/.claude/skills/git-commit-helper/scripts/analyze_staged.py --json
+python3 ~/.claude/skills/git-commit-helper/scripts/analyze_diff.py --staged --json
 ```
 
 **Problem**: No base branch candidates found
@@ -226,19 +224,6 @@ git log <base_branch>..HEAD  # Should show commits
 ```bash
 # Solution: Make scripts executable
 chmod +x ~/.claude/skills/git-commit-helper/scripts/*.py
-```
-
-## 🔄 Updating Skills
-
-After the marketplace is updated on GitHub, update your local installation:
-
-```bash
-# Reinstall to get latest changes
-/plugin install git-commit-helper
-
-# Or force reinstall
-/plugin uninstall git-commit-helper
-/plugin install git-commit-helper
 ```
 
 ## 🛠️ Development

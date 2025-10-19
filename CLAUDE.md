@@ -34,14 +34,16 @@ The YAML frontmatter in `SKILL.md` is critical - it tells Claude when to invoke 
 This skill implements a four-phase workflow with a unified final-diff-based approach:
 
 **Phase 1: Staged Changes → Commit Message**
-- `analyze_staged.py` extracts staged changes using `git diff --cached`
-- Returns JSON with files, stats, and full diff
+- `analyze_diff.py --staged` extracts staged changes using `git diff --cached`
+- Returns JSON with files, stats, full diff, and diff_type
+- Supports three-tier fallback strategy for large staged changes (>5000 lines)
 - Claude analyzes the diff to generate commit messages following Chris Beams' seven rules
 
 **Phase 2: PR History Restructuring**
 - `find_base_branch.py` scans all remote master/main branches and ranks candidates by commit count
 - User selects the correct base branch (important for feature-from-feature branches)
-- `suggest_commits.py` analyzes the final diff (`base..HEAD`) - this is the source of truth
+- `analyze_diff.py <base>` analyzes the final diff (`base..HEAD`) - this is the source of truth
+- Supports three-tier fallback: full diff → additions only → error (with --allow-large override)
 - Intermediate commits are reference only; restructuring is based on final state
 - Always creates backup branches before any destructive operations
 
@@ -69,10 +71,18 @@ This skill implements a four-phase workflow with a unified final-diff-based appr
 3. **PR templates respected**: Template detection checks `.github/PULL_REQUEST_TEMPLATE.md`, `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/*.md`, `docs/PULL_REQUEST_TEMPLATE.md`, and root `PULL_REQUEST_TEMPLATE.md`.
 4. **User confirmation required**: All destructive operations (restructure, PR create/update) require explicit user approval.
 
+**Three-Tier Fallback Strategy**:
+For large PRs/diffs (>5000 lines), `analyze_diff.py` uses progressive degradation:
+- **Tier 1** (<=5000 total lines): Full diff with all changes
+- **Tier 2** (>5000 total, <=5000 additions): Additions only (deletions omitted)
+- **Tier 3** (>5000 additions): Error with suggestion to split (override with --allow-large)
+
+This prevents context window overflow while still handling most large PRs via additions-only mode.
+
 **Efficient workflow example**:
 ```
 > PR 히스토리 정리해줘
-# Runs find_base_branch.py + suggest_commits.py, analyzes final diff
+# Runs find_base_branch.py + analyze_diff.py <base>, analyzes final diff
 
 > PR 만들어줘
 # Reuses the base and final diff analysis from above!
@@ -96,13 +106,16 @@ cp -r git-commit-helper ~/.claude/skills/
 ```bash
 # Test staged changes analysis
 cd git-commit-helper
-python3 scripts/analyze_staged.py --json
+python3 scripts/analyze_diff.py --staged --json
 
 # Test base branch detection
 python3 scripts/find_base_branch.py --json
 
 # Test PR diff analysis (requires base commit)
-python3 scripts/suggest_commits.py <base-commit> --json
+python3 scripts/analyze_diff.py <base-commit> --json
+
+# Test with large diff fallback
+python3 scripts/analyze_diff.py <base-commit> --json --allow-large
 ```
 
 ### Validating Marketplace Configuration

@@ -27,7 +27,7 @@ Create professional commit messages following the seven rules from staged change
 
 1. **Extract staged changes**:
    ```bash
-   python scripts/analyze_staged.py --json
+   python scripts/analyze_diff.py --staged --json
    ```
 
    Returns:
@@ -35,7 +35,8 @@ Create professional commit messages following the seven rules from staged change
    {
      "files": ["auth.js", "tests/auth.test.js"],
      "stats": {"insertions": 45, "deletions": 12, "files_changed": 2},
-     "diff": "full diff content..."
+     "diff": "full diff content...",
+     "diff_type": "full"
    }
    ```
 
@@ -118,10 +119,10 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
    **Step 4 - Run with selected base**:
    ```bash
    # If user selects candidate #1 (99cafb6bc3)
-   python scripts/suggest_commits.py 99cafb6bc3 --json
+   python scripts/analyze_diff.py 99cafb6bc3 --json
 
    # If user specifies custom base (e.g., refactor/aten-infrastructure-improvements)
-   python scripts/suggest_commits.py refactor/aten-infrastructure-improvements --json
+   python scripts/analyze_diff.py refactor/aten-infrastructure-improvements --json
    ```
 
    **Why user selection is needed**:
@@ -248,24 +249,42 @@ Generate PR title and description from commit history and create a new pull requ
 
    Show candidates to user and let them select.
 
-3. **Analyze final diff** (NOT individual commits):
+3. **Analyze final diff with smart fallback**:
 
    ⚠️ **IMPORTANT: Use final diff as source of truth, same as restructuring workflow**
 
-   If recently ran `suggest_commits.py` with same base:
-   - Reuse the analysis results (base_branch, total_diff, stats)
+   If recently ran `analyze_diff.py` with same base:
+   - Check if analysis succeeded (no large PR error)
+   - Reuse the analysis results if available
    - Skip re-analysis for efficiency
 
-   Otherwise, analyze now:
+   Otherwise, analyze now. The script uses **three-tier strategy** for large PRs:
+
+   **Tier 1 - Full diff** (total <= 5000 lines):
+   - Returns complete diff with all changes
+   - Best quality analysis possible
+   - `diff_type: "full"`
+
+   **Tier 2 - Additions only** (total > 5000 BUT additions <= 5000):
+   - Returns only added/modified lines (deletions omitted)
+   - Still provides good analysis of new functionality
+   - Shows warning: "Showing additions only, deletions omitted"
+   - Claude can generate meaningful PR description from additions
+   - `diff_type: "additions_only"`
+
+   **Tier 3 - Error** (additions > 5000):
+   - Script returns error without diff
+   - Suggests splitting PR into smaller pieces
+   - Can override with `--allow-large` flag
+   - `diff_type: "full_forced"` if forced
+   - ⚠️ Forced analysis may fail due to context limits
+
    ```bash
-   # Get final diff (source of truth)
-   git diff <base>..HEAD
+   # Normal execution (auto-fallback)
+   python scripts/analyze_diff.py <base> --json
 
-   # Get change statistics
-   git diff <base>..HEAD --stat
-
-   # Get commit list (reference only, NOT source of truth)
-   git log <base>..HEAD --pretty=format:"%h %s"
+   # Force large PR (if additions > 5000)
+   python scripts/analyze_diff.py <base> --json --allow-large
    ```
 
    **Key principle**: Individual commits are reference only. The final diff shows what actually changed and that's what matters for PR description.
@@ -390,24 +409,22 @@ Refresh PR title and description based on latest commit history.
    }
    ```
 
-2. **Analyze latest final diff** (using existing base from PR):
+2. **Analyze latest final diff with smart fallback**:
 
    ⚠️ **IMPORTANT: Use final diff as source of truth**
 
-   If recently analyzed with `suggest_commits.py`:
-   - Reuse existing analysis results
+   If recently analyzed with `analyze_diff.py`:
+   - Check if analysis succeeded (no large PR error)
+   - Reuse existing analysis results if available
 
-   Otherwise:
-   ```bash
-   # Get latest final diff (source of truth)
-   git diff <base>..HEAD
+   Otherwise, run `analyze_diff.py` with base from PR.
 
-   # Get latest statistics
-   git diff <base>..HEAD --stat
+   The script uses **three-tier strategy** for large PRs:
+   - **Tier 1** (<=5000 lines): Full diff
+   - **Tier 2** (>5000 total, <=5000 additions): Additions only
+   - **Tier 3** (>5000 additions): Error (use `--allow-large` to force)
 
-   # Get commit list (reference only)
-   git log <base>..HEAD --pretty=format:"%h %s"
-   ```
+   See PR Creation workflow Step 3 for detailed tier descriptions.
 
 3. **Check for PR template** (same as creation workflow):
    - Look in common locations
@@ -465,22 +482,19 @@ Refresh PR title and description based on latest commit history.
 
 ### scripts/
 
-**analyze_staged.py**: Extract staged changes for commit message generation
-- Usage: `python scripts/analyze_staged.py --json`
-- Returns: Files, stats, and full diff of staged changes
-- Claude analyzes diff to generate meaningful commit message
+**analyze_diff.py**: Unified diff analyzer for both staged changes and PR analysis
+- Usage:
+  - Staged mode: `python scripts/analyze_diff.py --staged --json`
+  - Range mode: `python scripts/analyze_diff.py <base_commit> --json [--allow-large]`
+- Returns: Diff, stats, diff_type, and mode-specific fields
+- Supports three-tier fallback strategy for large diffs (>5000 lines)
+- Claude uses output for commit messages (staged) or PR restructuring/creation (range)
 
 **find_base_branch.py**: Find base branch candidates for PR analysis
 - Usage: `python scripts/find_base_branch.py --json [--limit N]`
 - Returns: Ranked list of base branch candidates with commit counts
 - Scans all remote branches and finds merge-bases, sorted by proximity (fewer commits = closer base)
-- User selects the correct base from candidates before running suggest_commits.py
-
-**suggest_commits.py**: Extract PR changes for history restructuring
-- Usage: `python scripts/suggest_commits.py <base_commit> --json` (⚠️ Base branch/commit is REQUIRED)
-- Returns: Final diff (source of truth), current commits (reference), backup commands
-- Claude analyzes final diff to suggest atomic commit organization
-- Use `find_base_branch.py` first to find candidates, then user selects the correct base
+- User selects the correct base from candidates before running analyze_diff.py
 
 ### references/
 
@@ -496,7 +510,7 @@ Refresh PR title and description based on latest commit history.
 **User**: "커밋 메시지 만들어줘"
 
 **Action**:
-1. Run `analyze_staged.py --json`
+1. Run `analyze_diff.py --staged --json`
 2. Analyze diff: Added null check to prevent crash
 3. Generate message following seven rules
 
@@ -524,7 +538,7 @@ Fixes #789
    ```
 3. **Ask user**: "Which base is correct? Or specify a different one?"
 4. **User responds**: "Use `078889590a` (refactor/aten-infrastructure-improvements)"
-5. Run `suggest_commits.py 078889590a --json`
+5. Run `analyze_diff.py 078889590a --json`
 6. Analyze `total_diff`: 1 commit with macro refactoring changes
 7. Suggest atomic commit organization if needed
 
