@@ -37,24 +37,73 @@ git-commit-helper PR 히스토리 정리해줘
 
 ## 🚀 Installation
 
-### Requirements
+### For Claude Code
+
+#### Requirements
 
 - **Python**: 3.6 or higher
 - **Git**: 2.23 or higher
 - **Claude Code**: Latest version recommended
 
-### Quick Install
+#### Quick Install
 
 ```bash
 /plugin marketplace add https://github.com/furiosa-ai/agent_skills
 ```
 
-### Manual Install
+#### Manual Install
 
 ```bash
 git clone https://github.com/furiosa-ai/agent_skills
 cp -r agent_skills/git-commit-helper ~/.claude/skills/
 ```
+
+### For AMP Code
+
+#### Requirements
+
+- **Python**: 3.6 or higher
+- **Git**: 2.23 or higher
+- **gh CLI**: For PR commands (`brew install gh` or `apt install gh`)
+- **AMP Code**: Latest version
+
+#### Install
+
+```bash
+git clone https://github.com/furiosa-ai/agent_skills
+cd agent_skills
+./install-amp.sh
+```
+
+This installs:
+- Slash commands to `~/.config/amp/commands/`
+- Python scripts to `~/.config/amp/scripts/`
+- Documentation to `~/.config/amp/`
+
+#### Usage in AMP Code
+
+```bash
+# Stage changes first
+git add <files>
+
+# Generate commit message
+/commit-msg
+
+# Find base branch and prepare PR analysis
+/pr-analyze
+
+# Create pull request
+/pr-create
+
+# Update existing PR
+/pr-update
+```
+
+**How it works:**
+1. Slash commands output JSON data + workflow instructions
+2. AMP follows the workflow steps from `AGENTS.md`
+3. AMP parses diff, applies Chris Beams' seven rules, generates output
+4. You review and approve before any Git operations
 
 ## 📚 Skills Documentation
 
@@ -251,14 +300,97 @@ Following Anthropic's agent-skills pattern:
 
 ```
 agent_skills/
+├── .agents/              # AMP Code slash commands
+│   └── commands/
+│       ├── commit-msg
+│       ├── pr-analyze
+│       ├── pr-create
+│       └── pr-update
 ├── .claude-plugin/
 │   └── marketplace.json  # Plugin marketplace configuration
 ├── git-commit-helper/    # Skills at root level
 │   ├── SKILL.md
 │   ├── scripts/
 │   └── references/
+├── AGENTS.md             # AMP Code LLM guidance
+├── CLAUDE.md             # Architecture documentation
+├── install-amp.sh        # AMP Code installer
 └── README.md
 ```
+
+### Testing Skills Locally
+
+#### Claude Code
+```bash
+# Copy skill for local testing
+cp -r git-commit-helper ~/.claude/skills/
+
+# Test with trigger phrases
+# "커밋 메시지 만들어줘"
+# "PR 히스토리 정리해줘"
+```
+
+#### AMP Code
+```bash
+# Install globally
+./install-amp.sh
+
+# Test in a git repository
+cd /path/to/repo
+git add <files>
+
+# In AMP Code, use slash commands:
+# /commit-msg
+# /pr-analyze
+```
+
+### Testing Python Scripts
+
+```bash
+# Test staged changes analysis
+cd git-commit-helper
+python3 scripts/analyze_diff.py --staged --json
+
+# Test base branch detection
+python3 scripts/find_base_branch.py --json
+
+# Test PR diff analysis
+python3 scripts/analyze_diff.py <base-commit> --json
+
+# Test with large diff fallback
+python3 scripts/analyze_diff.py <base-commit> --json --allow-large
+```
+
+### Developing AMP Code Integration
+
+When adding new slash commands or modifying workflows:
+
+1. **Update slash command** in `.agents/commands/`
+   - Ensure script paths work for both workspace and global install
+   - Include JSON output + workflow hints
+   - Reference AGENTS.md sections
+
+2. **Update AGENTS.md**
+   - Add/modify workflow sections
+   - Keep in sync with SKILL.md principles
+   - Provide complete step-by-step instructions
+
+3. **Test both installation modes**:
+   ```bash
+   # Test workspace mode
+   cd /path/to/test-repo
+   /commit-msg  # Should find scripts in git-commit-helper/scripts/
+
+   # Test global mode
+   ./install-amp.sh
+   cd /path/to/another-repo
+   /commit-msg  # Should find scripts in ~/.config/amp/scripts/
+   ```
+
+4. **Update documentation**:
+   - README.md (user-facing)
+   - CLAUDE.md (architecture)
+   - install-amp.sh (if paths change)
 
 ## 📄 License
 

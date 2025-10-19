@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Claude Code plugin marketplace that provides agent skills - specialized workflows that extend Claude's capabilities. The repository follows Anthropic's agent-skills pattern, where skills are defined at the root level with `SKILL.md` files containing YAML frontmatter.
 
+**Multi-Platform Support**: The git-commit-helper skill is available for both:
+- **Claude Code** - Via plugin marketplace system with automatic skill loading
+- **AMP Code** - Via slash commands and AGENTS.md guidance (see AMP Code Integration section)
+
 ## Key Architecture Concepts
 
 ### Plugin Marketplace Structure
@@ -212,3 +216,199 @@ The git-commit-helper skill enforces these rules:
 7. Explain what and why, not how
 
 No scope prefixes (like `feat(auth):`) are used - just imperative verbs directly.
+
+## AMP Code Integration
+
+The git-commit-helper skill has been adapted for AMP Code (Sourcegraph's coding agent) using a different architecture that complements AMP's extension system.
+
+### Architecture Overview
+
+**Key Difference from Claude Code**:
+- Claude Code: Skills are auto-loaded with full SKILL.md context when triggers are detected
+- AMP Code: Slash commands output data + workflow hints, LLM follows guidance from AGENTS.md
+
+### Components
+
+**1. Slash Commands** (`.agents/commands/`)
+- `/commit-msg` - Generate commit message from staged changes
+- `/pr-analyze` - Find base branch candidates
+- `/pr-create` - Create pull request
+- `/pr-update` - Update existing PR
+
+Each slash command:
+- Is an executable bash script
+- Finds and runs Python scripts from `git-commit-helper/scripts/`
+- Works in both workspace (`.agents/commands/`) and global (`~/.config/amp/commands/`) modes
+- Outputs JSON data from Python scripts
+- Includes workflow hints (numbered steps) for AMP's LLM
+- References AGENTS.md sections for complete workflows
+
+**2. AGENTS.md**
+- Provides complete workflow guidance for AMP's LLM
+- References `@git-commit-helper/SKILL.md` for detailed instructions
+- Includes "Key Principles for Amp" specific to slash command usage
+- Contains workflow summaries with code examples
+- Explains Chris Beams' seven rules
+
+**3. Python Scripts** (reused from Claude Code version)
+- `analyze_diff.py` - Unified diff analyzer (staged mode and range mode)
+- `find_base_branch.py` - Base branch candidate detection
+- No duplication - same scripts work for both Claude Code and AMP Code
+
+**4. install-amp.sh**
+- One-command installation to `~/.config/amp/`
+- Copies slash commands, Python scripts, and documentation
+- Respects `XDG_CONFIG_HOME` environment variable
+
+### Design Principles
+
+**1. Hybrid Approach (Data + Hints + Guidance)**
+- Slash commands provide: JSON data + immediate workflow hints
+- AGENTS.md provides: Complete workflows + design principles
+- SKILL.md provides: Detailed reference (via `@` mention)
+- Result: Self-contained workflow that doesn't require AMP to guess next steps
+
+**2. Code Reuse**
+- Python scripts are shared between Claude Code and AMP Code
+- No duplication of analysis logic
+- Slash commands are thin wrappers around existing scripts
+
+**3. Option 1 Strategy** (from design discussion)
+- Slash commands find base candidates, AMP runs `analyze_diff.py` directly
+- Avoids unused variables and complex state management
+- Each command is stateless and single-purpose
+
+**4. Script Location Flexibility**
+- Commands check workspace first: `$REPO_ROOT/git-commit-helper/scripts/`
+- Fall back to global: `~/.config/amp/scripts/`
+- Works for both per-project and global installations
+
+### Workflow Examples
+
+**Commit Message Generation**:
+```bash
+# User stages changes
+git add <files>
+
+# User runs slash command
+/commit-msg
+
+# Slash command outputs:
+# - JSON with diff, stats, files
+# - Workflow hints: "Analyze diff → Apply seven rules → Generate message"
+# - Reference: "See AGENTS.md section 'Generate Commit Message'"
+
+# AMP follows workflow from AGENTS.md
+# Generates commit message following Chris Beams' rules
+```
+
+**PR Creation**:
+```bash
+# User runs slash command
+/pr-create
+
+# Slash command outputs:
+# - JSON with base branch candidates
+# - Workflow hints: "Select base → I'll run analyze_diff.py → Check template → Generate PR"
+# - Reference: "See AGENTS.md section 'Create Pull Request'"
+
+# User selects base branch
+# AMP runs: python3 git-commit-helper/scripts/analyze_diff.py <base> --json
+# AMP checks for PR template
+# AMP generates title/body from final diff
+# User approves, AMP creates PR
+```
+
+### Directory Structure
+
+```
+agent_skills/
+├── .agents/
+│   └── commands/          # AMP Code slash commands
+│       ├── commit-msg     # Executable bash scripts
+│       ├── pr-analyze
+│       ├── pr-create
+│       └── pr-update
+├── AGENTS.md              # AMP Code LLM guidance
+├── git-commit-helper/     # Shared skill directory
+│   ├── SKILL.md           # Claude Code skill definition
+│   ├── scripts/           # Shared Python scripts
+│   │   ├── analyze_diff.py
+│   │   └── find_base_branch.py
+│   └── references/        # Shared reference docs
+└── install-amp.sh         # AMP Code installer
+```
+
+### Installation Locations
+
+**Workspace Installation** (per-project):
+```
+project/
+├── .agents/
+│   └── commands/          # Slash commands
+└── git-commit-helper/     # Python scripts
+```
+
+**Global Installation** (`~/.config/amp/`):
+```
+~/.config/amp/
+├── commands/              # Slash commands
+│   ├── commit-msg
+│   ├── pr-analyze
+│   ├── pr-create
+│   └── pr-update
+├── scripts/               # Python scripts
+│   ├── analyze_diff.py
+│   └── find_base_branch.py
+├── git-commit-helper/     # SKILL.md for @-mention
+│   ├── SKILL.md
+│   └── references/
+└── AGENTS.md              # Workflow guidance
+```
+
+### Differences from Claude Code Version
+
+| Aspect | Claude Code | AMP Code |
+|--------|-------------|----------|
+| **Activation** | Auto-loaded when trigger detected | User invokes slash command |
+| **Context** | Full SKILL.md in context | JSON + hints, AGENTS.md guidance |
+| **Script Invocation** | Claude runs scripts directly | Slash command wraps scripts |
+| **Workflow State** | Claude maintains conversation state | Stateless commands |
+| **Base Selection** | Script output → Claude asks user | Script output → User responds → AMP runs next script |
+| **Installation** | `~/.claude/skills/` | `~/.config/amp/` |
+
+### Testing AMP Integration
+
+```bash
+# Install to global config
+./install-amp.sh
+
+# Test in a git repository
+cd /path/to/repo
+git add <files>
+
+# Test commit message generation
+# (In AMP Code)
+/commit-msg
+
+# Verify output includes:
+# - JSON with diff data
+# - Workflow hints
+# - Reference to AGENTS.md
+```
+
+### Maintenance Considerations
+
+When updating git-commit-helper:
+
+1. **Python scripts** - Update once, works for both platforms
+2. **SKILL.md** - Update for Claude Code workflows
+3. **AGENTS.md** - Update for AMP Code workflows (keep in sync with SKILL.md principles)
+4. **Slash commands** - Only update if script invocation changes
+5. **README.md** - Update both Claude Code and AMP Code sections
+
+**Documentation consistency checklist** still applies:
+- Update SKILL.md for Claude Code
+- Update AGENTS.md for AMP Code
+- Update README.md for user-facing docs
+- Update CLAUDE.md (this file) for architecture changes

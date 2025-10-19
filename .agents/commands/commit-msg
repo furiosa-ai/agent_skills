@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# AMP Code slash command: /commit-msg
+# Generate commit message from staged changes following Chris Beams' seven rules
+
+set -euo pipefail
+
+# Find script directory (works for both workspace and global install)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Try to find analyze_diff.py in multiple locations
+if [[ -f "$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py" ]]; then
+    ANALYZE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+elif [[ -f "$HOME/.config/amp/scripts/analyze_diff.py" ]]; then
+    ANALYZE_SCRIPT="$HOME/.config/amp/scripts/analyze_diff.py"
+else
+    echo "❌ Error: Cannot find analyze_diff.py"
+    echo ""
+    echo "Expected locations:"
+    echo "  - $REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+    echo "  - $HOME/.config/amp/scripts/analyze_diff.py"
+    exit 1
+fi
+
+# Check if there are staged changes
+if ! git diff --cached --quiet 2>/dev/null; then
+    # Run analyze_diff.py
+    RESULT=$(python3 "$ANALYZE_SCRIPT" --staged --json 2>&1)
+
+    if [[ $? -ne 0 ]]; then
+        echo "❌ Error analyzing staged changes:"
+        echo "$RESULT"
+        exit 1
+    fi
+
+    # Parse JSON and format for AMP
+    echo "📝 Analyzed staged changes. Here's what I found:"
+    echo ""
+    echo "\`\`\`json"
+    echo "$RESULT" | python3 -m json.tool
+    echo "\`\`\`"
+    echo ""
+    echo "---"
+    echo ""
+    echo "📋 **Workflow: Generate Commit Message from Staged Changes**"
+    echo ""
+    echo "**Your task:**"
+    echo "1. **Analyze the diff above** to understand:"
+    echo "   - What changed at high level (not line-by-line)"
+    echo "   - Why this change matters"
+    echo "   - Appropriate imperative verb (Add/Fix/Refactor/Update/Remove)"
+    echo ""
+    echo "2. **Generate commit message following Chris Beams' seven rules:**"
+    echo "   - Subject: ≤50 chars, imperative mood, capitalized, no period"
+    echo "   - Blank line separator"
+    echo "   - Body: 72 chars/line, explain WHAT and WHY (not HOW)"
+    echo ""
+    echo "3. **Format example:**"
+    echo "   \`\`\`"
+    echo "   Prevent null pointer in token validation"
+    echo "   "
+    echo "   Token validator crashed when receiving null tokens from"
+    echo "   malformed requests. Add null check at validation entry"
+    echo "   point and return 400 Bad Request for invalid input."
+    echo "   "
+    echo "   Fixes #789"
+    echo "   \`\`\`"
+    echo ""
+    echo "See AGENTS.md section \"Generate Commit Message\" for complete workflow."
+else
+    echo "❌ No staged changes found. Stage changes first with \`git add\`."
+fi

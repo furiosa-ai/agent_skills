@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# AMP Code slash command: /pr-create
+# Create pull request with auto-generated title and description from final diff
+
+set -euo pipefail
+
+# Find script directory (works for both workspace and global install)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Try to find find_base_branch.py in multiple locations
+if [[ -f "$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py" ]]; then
+    FIND_BASE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+elif [[ -f "$HOME/.config/amp/scripts/find_base_branch.py" ]]; then
+    FIND_BASE_SCRIPT="$HOME/.config/amp/scripts/find_base_branch.py"
+else
+    echo "❌ Error: Cannot find find_base_branch.py"
+    echo ""
+    echo "Expected locations:"
+    echo "  - $REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+    echo "  - $HOME/.config/amp/scripts/find_base_branch.py"
+    exit 1
+fi
+
+echo "🔍 Checking if PR already exists..."
+echo ""
+
+# Check if PR already exists
+PR_INFO=$(gh pr view --json number,title 2>&1) || true
+
+if echo "$PR_INFO" | grep -q '"number"'; then
+    PR_NUM=$(echo "$PR_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin)['number'])")
+    PR_TITLE=$(echo "$PR_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin)['title'])")
+    echo "⚠️  Pull request already exists:"
+    echo "   #$PR_NUM: $PR_TITLE"
+    echo ""
+    echo "Use \`/pr-update\` to update the existing PR instead."
+    exit 0
+fi
+
+echo "✅ No existing PR found. Proceeding with creation..."
+echo ""
+echo "🔍 Finding base branch candidates..."
+echo ""
+
+# Find base branch candidates
+CANDIDATES=$(python3 "$FIND_BASE_SCRIPT" --json 2>&1)
+
+if [[ $? -ne 0 ]]; then
+    echo "❌ Error finding base branches:"
+    echo "$CANDIDATES"
+    exit 1
+fi
+
+# Parse and display candidates
+echo "\`\`\`json"
+echo "$CANDIDATES" | python3 -m json.tool
+echo "\`\`\`"
+echo ""
+echo "---"
+echo ""
+echo "📋 **Workflow: Create Pull Request**"
+echo ""
+echo "**Step 1: Base Branch Selection (REQUIRED)**"
+echo ""
+echo "Tell me which base to use:"
+echo "  - \"Use candidate #1\""
+echo "  - \"Use origin/main\""
+echo "  - \"Use commit abc1234\""
+echo ""
+echo "**Step 2: After you select, I will:**"
+echo ""
+echo "1. **Analyze final diff** with smart fallback:"
+echo "   \`\`\`bash"
+echo "   python3 git-commit-helper/scripts/analyze_diff.py <base> --json"
+echo "   # Or: ~/.config/amp/scripts/analyze_diff.py <base> --json"
+echo "   \`\`\`"
+echo "   - ≤5000 lines: Full diff"
+echo "   - >5000 total, ≤5000 additions: Additions only"
+echo "   - >5000 additions: Error (override with --allow-large)"
+echo ""
+echo "2. **Check for PR template** in .github/, docs/, or root"
+echo ""
+echo "3. **Generate PR title from final diff:**"
+echo "   - Describe complete change (not individual commits)"
+echo "   - Follow seven rules: imperative, ≤50 chars, no period"
+echo "   - Example: \"Add user authentication system\""
+echo ""
+echo "4. **Generate PR body:**"
+echo "   - Fill template if exists, or use default format"
+echo "   - Based on final diff analysis"
+echo ""
+echo "5. **Show for your review and approval**"
+echo ""
+echo "6. **Create PR:** \`gh pr create --title \"...\" --body \"...\" --base <base>\`"
+echo ""
+echo "⚠️  **Critical:** PR description based on FINAL DIFF, not commit messages!"
+echo ""
+echo "See AGENTS.md section \"Create Pull Request\" for complete workflow."

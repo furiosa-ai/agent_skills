@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# AMP Code slash command: /pr-analyze
+# Analyze PR and suggest atomic commit restructuring based on final diff
+
+set -euo pipefail
+
+# Find script directory (works for both workspace and global install)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Try to find find_base_branch.py in multiple locations
+if [[ -f "$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py" ]]; then
+    FIND_BASE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+elif [[ -f "$HOME/.config/amp/scripts/find_base_branch.py" ]]; then
+    FIND_BASE_SCRIPT="$HOME/.config/amp/scripts/find_base_branch.py"
+else
+    echo "❌ Error: Cannot find find_base_branch.py"
+    echo ""
+    echo "Expected locations:"
+    echo "  - $REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+    echo "  - $HOME/.config/amp/scripts/find_base_branch.py"
+    exit 1
+fi
+
+echo "🔍 Finding base branch candidates..."
+echo ""
+
+# Find base branch candidates
+CANDIDATES=$(python3 "$FIND_BASE_SCRIPT" --json 2>&1)
+
+if [[ $? -ne 0 ]]; then
+    echo "❌ Error finding base branches:"
+    echo "$CANDIDATES"
+    exit 1
+fi
+
+# Parse and display candidates
+echo "\`\`\`json"
+echo "$CANDIDATES" | python3 -m json.tool
+echo "\`\`\`"
+echo ""
+echo "---"
+echo ""
+echo "📋 **Workflow: Restructure PR Commit History**"
+echo ""
+echo "**Step 1: Base Branch Selection (REQUIRED)**"
+echo ""
+echo "Review the candidates above and:"
+echo "1. **Identify the correct base branch**"
+echo "   - Lowest commit count usually = closest base"
+echo "   - For feature-from-feature, specify parent feature branch manually"
+echo ""
+echo "2. **Tell me which base to use:**"
+echo "   - \"Use candidate #1\" or"
+echo "   - \"Use origin/main\" or  "
+echo "   - \"Use commit abc1234\""
+echo ""
+echo "**Step 2: After you select, I will:**"
+echo "1. **Run analyze_diff.py** with selected base:"
+echo "   \`\`\`bash"
+echo "   # From workspace"
+echo "   python3 git-commit-helper/scripts/analyze_diff.py <selected-base> --json"
+echo "   # Or from global install"
+echo "   python3 ~/.config/amp/scripts/analyze_diff.py <selected-base> --json"
+echo "   \`\`\`"
+echo ""
+echo "2. **Analyze the final diff** (NOT individual commits)"
+echo ""
+echo "3. **Suggest atomic commit organization** based on logical groups"
+echo ""
+echo "4. **Provide interactive rebase instructions** with backup:"
+echo "   \`\`\`bash"
+echo "   git branch backup/feature-name-\$(date +%Y%m%d-%H%M%S)"
+echo "   git rebase -i <base>"
+echo "   \`\`\`"
+echo ""
+echo "⚠️  **Important:** Only the final diff matters. Intermediate commits are reference only."
+echo ""
+echo "See AGENTS.md section \"Restructure PR History\" for complete workflow."

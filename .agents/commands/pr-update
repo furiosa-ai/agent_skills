@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# AMP Code slash command: /pr-update
+# Update existing PR title and description based on latest changes
+
+set -euo pipefail
+
+# Find script directory (works for both workspace and global install)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Try to find scripts in multiple locations
+if [[ -f "$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py" ]]; then
+    ANALYZE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+elif [[ -f "$HOME/.config/amp/scripts/analyze_diff.py" ]]; then
+    ANALYZE_SCRIPT="$HOME/.config/amp/scripts/analyze_diff.py"
+else
+    echo "❌ Error: Cannot find analyze_diff.py"
+    echo ""
+    echo "Expected locations:"
+    echo "  - $REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+    echo "  - $HOME/.config/amp/scripts/analyze_diff.py"
+    exit 1
+fi
+
+echo "🔍 Getting current PR information..."
+echo ""
+
+# Get current PR information
+PR_INFO=$(gh pr view --json number,title,body,baseRefName 2>&1)
+
+if [[ $? -ne 0 ]]; then
+    echo "❌ No pull request found for current branch"
+    echo ""
+    echo "Use \`/pr-create\` to create a new PR instead."
+    exit 1
+fi
+
+# Parse PR info
+PR_NUM=$(echo "$PR_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin)['number'])")
+PR_TITLE=$(echo "$PR_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin)['title'])")
+BASE_BRANCH=$(echo "$PR_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin)['baseRefName'])")
+
+echo "📝 Current PR #$PR_NUM"
+echo "   Title: $PR_TITLE"
+echo "   Base: $BASE_BRANCH"
+echo ""
+echo "🔍 Analyzing latest changes against base branch..."
+echo ""
+
+# Analyze latest diff
+RESULT=$(python3 "$ANALYZE_SCRIPT" "$BASE_BRANCH" --json 2>&1)
+
+if [[ $? -ne 0 ]]; then
+    echo "❌ Error analyzing changes:"
+    echo "$RESULT"
+    exit 1
+fi
+
+# Display analysis
+echo "\`\`\`json"
+echo "$RESULT" | python3 -m json.tool
+echo "\`\`\`"
+echo ""
+echo "---"
+echo ""
+echo "📋 **Workflow: Update Pull Request**"
+echo ""
+echo "**Analysis complete!** I've analyzed the final diff from $BASE_BRANCH to HEAD."
+echo ""
+echo "**Next steps:**"
+echo ""
+echo "1. **Check for PR template** in .github/, docs/, or root"
+echo ""
+echo "2. **Generate updated PR title** from final diff:"
+echo "   - Describe complete change (not individual commits)"
+echo "   - Follow seven rules: imperative, ≤50 chars, no period"
+echo ""
+echo "3. **Generate updated PR body:**"
+echo "   - Fill template if exists, or use default format"
+echo "   - Based on final diff analysis above"
+echo ""
+echo "4. **Show comparison:**"
+echo "   - Old title vs new title"
+echo "   - Old body vs new body"
+echo ""
+echo "5. **After your approval:**"
+echo "   \`gh pr edit --title \"...\" --body \"...\"\`"
+echo ""
+echo "⚠️  **Warning:** Manual edits on GitHub will be overwritten!"
+echo ""
+echo "See AGENTS.md section \"Update Pull Request\" for complete workflow."
+echo ""
+echo "Please tell me to proceed with generating the updated PR content."
