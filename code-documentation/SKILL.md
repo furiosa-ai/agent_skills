@@ -288,6 +288,69 @@ The `authenticate()` function validates JWT tokens using RS256 algorithm, with a
 - **Deprecated features**: Mark clearly
   - "**Deprecated in v3.0**: Function X (use Y instead) ([Source](URL)) [95%]"
 
+**Rich Formatting (GitHub-supported formats only):**
+
+Use GitHub's native features for clear, expressive documentation:
+
+**Diagrams (Mermaid):**
+```markdown
+```mermaid
+graph TD
+    Client[Client Application] --> API[REST API]
+    API --> Auth[Auth Service]
+    API --> DB[(Database)]
+    Auth --> DB
+```
+```
+
+Diagram types: `graph TD/LR` (flowchart), `sequenceDiagram`, `classDiagram`, `stateDiagram`, `erDiagram`
+
+**Tables:**
+```markdown
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user_id` | int  | Yes      | User identifier |
+| `token`   | str  | Yes      | Auth token |
+```
+
+**Collapsible sections (for long content):**
+```markdown
+<details>
+<summary>Implementation Details</summary>
+
+[Detailed explanation with code examples]
+</details>
+```
+
+**Alerts/Callouts (GitHub-style):**
+```markdown
+> [!NOTE]
+> This function is thread-safe as of v2.0
+
+> [!WARNING]
+> Deprecated in v3.0 - use `newFunction()` instead
+
+> [!IMPORTANT]
+> Must call `initialize()` before first use
+```
+
+**Code blocks with highlighting:**
+````markdown
+```rust
+// Syntax highlighting improves readability
+fn process(input: &str) -> Result<Output> {
+    validate(input)?
+}
+```
+````
+
+**Task lists:**
+```markdown
+- [x] Implemented basic parsing
+- [x] Added error handling
+- [ ] TODO: Add async support
+```
+
 #### 2.4 Document Structure
 
 All generated documents must include metadata at the top:

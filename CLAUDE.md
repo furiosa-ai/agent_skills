@@ -141,6 +141,7 @@ This skill implements a 3-phase accuracy-based documentation workflow with multi
 8. **Multi-document support**: User chooses single/multiple docs for multi-module sources
 9. **MCP-first**: Check for MCP servers before asking user for manual content
 10. **File-based output**: Generate markdown files with Changelog section
+11. **GitHub-native formats**: Use Mermaid diagrams, tables, alerts, collapsible sections for expressive docs
 
 **Citation Format**:
 - Single source: `Statement ([Source](URL)) [95%]`

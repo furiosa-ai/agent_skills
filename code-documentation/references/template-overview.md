@@ -30,15 +30,15 @@
 
 [Description of overall architecture - monolithic, microservices, layered, etc.] ([Source](URL)) [confidence%]
 
-```
-[Optional: ASCII diagram or description of major components and their relationships]
-Component A <--> Component B
-     |              |
-     v              v
-Component C <-- Component D
+```mermaid
+graph TD
+    A[Component A] <--> B[Component B]
+    A --> C[Component C]
+    B --> D[Component D]
+    C --> D
 ```
 
-[Explanation of diagram] ([Source](URL)) [confidence%]
+[Explanation of diagram and component relationships] ([Source](URL)) [confidence%]
 
 ### Key Design Principles
 
