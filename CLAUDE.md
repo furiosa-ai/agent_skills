@@ -93,6 +93,104 @@ This prevents context window overflow while still handling most large PRs via ad
 # No need to re-run scripts or re-analyze
 ```
 
+### Code Documentation Architecture
+
+This skill implements a 3-phase accuracy-based documentation workflow with multi-source support.
+
+**Phase 1: Configuration Collection**
+- User specifies source links (GitHub URLs, web pages, Google Drive, Notion, local files)
+- User selects document type (API Reference, System Overview, Tutorial, Custom)
+- User sets accuracy threshold (e.g., 70% - statements below this are excluded)
+- User chooses template/style preferences
+
+**Phase 2: Document Generation**
+- Claude analyzes sources using appropriate tools:
+  - GitHub: Read tool (local), WebFetch (remote), gh CLI
+  - Web pages: WebFetch tool
+  - Local files: Read tool (including PDFs)
+  - Google Drive/Notion: MCP servers (if available), user-provided content (fallback)
+- For each statement, Claude calculates accuracy:
+  - 90-100%: Direct facts from source
+  - 70-89%: Clear inference from multiple facts
+  - 50-69%: Some speculation involved
+  - 0-49%: Mostly speculation
+- Every statement formatted as: `Statement ([Source](URL)) [accuracy%]`
+- Statements with `accuracy < threshold` are excluded
+- Document saved as markdown file with metadata (generated date, threshold, last updated)
+
+**Phase 3: PR Comment Integration**
+- User creates PR with generated documentation
+- User adds line-specific or general comments to PR (questions, corrections, additional info)
+- User: "PR #123 코멘트 반영해줘"
+- Claude fetches PR comments via `gh pr view #123 --json comments,reviews`
+- Claude processes each comment:
+  - Line-specific: Update corresponding document line
+  - General: Find relevant section by context
+- Updated statements cite PR comment as source: `([Source](url), [PR Comment](comment-url)) [95%]`
+- Information from PR comments is high-confidence (90-95%) as it comes from domain experts
+- "Last Updated" timestamp refreshed
+
+**Key Design Principles**:
+1. **Accuracy-based filtering**: Exclude low-confidence statements, gaps > speculation
+2. **Source transparency**: Every claim needs inline link and confidence score
+3. **Accuracy rationale**: Blockquote rationale for 70-90% statements explaining confidence breakdown
+4. **Progressive refinement**: Document improves through PR feedback cycle
+5. **Conflict resolution**: Replace conflicting info + TODO comment for human verification
+6. **Incremental updates**: Auto-detect scope from PR comments, update only affected sections
+7. **Code comment mapping**: Map code file PR comments to relevant doc sections
+8. **Multi-document support**: User chooses single/multiple docs for multi-module sources
+9. **MCP-first**: Check for MCP servers before asking user for manual content
+10. **File-based output**: Generate markdown files with Changelog section
+
+**Citation Format**:
+- Single source: `Statement ([Source](URL)) [95%]`
+- Multiple sources: `Statement ([Source1](URL1), [Source2](URL2)) [88%]`
+- With PR comment: `Statement ([Source](url), [PR Comment](pr-url)) [90%]`
+- With rationale: Blockquote immediately below statement for 70-90% accuracy
+
+**Document Metadata**:
+```markdown
+# Document Title
+
+**Generated**: YYYY-MM-DD
+**Accuracy Threshold**: 70%
+**Last Updated**: YYYY-MM-DD
+**Sources Analyzed**: 5
+
+## Changelog
+
+### [YYYY-MM-DD] - Initial Generation
+- Generated from source list
+- X statements documented (avg accuracy: Y%)
+- Z analysis gaps identified
+```
+
+**Analysis Gaps**:
+When confidence threshold cannot be met for important topics, document explicitly:
+```markdown
+<!-- Analysis Gap: Unable to determine retry behavior with sufficient confidence
+Sources analyzed: file.rs:100-150, docs.md
+Recommendation: Review implementation or ask maintainer -->
+```
+
+**Conflict Resolution Workflow**:
+1. Detect conflict (new info contradicts old)
+2. Replace statement with new info (higher priority: PR comment > code > docs)
+3. Add TODO comment: `<!-- TODO: Conflict detected. Old: X, New: Y. Please verify. -->`
+4. Report conflict to user with rationale
+
+**Incremental Update Strategy**:
+- Narrow scope: Update single function/class section only
+- Medium scope: Regenerate entire section (e.g., Functions, Error Handling)
+- Wide scope: Update multiple affected sections
+- Auto-detect scope from PR comment location (doc line, code line, general)
+- Code file comments → find related doc section by function/class name
+
+**Multi-Document Generation**:
+- Ask user: Single combined doc vs multiple docs vs auto-decide
+- Maintain consistent threshold/template across all docs
+- Report summary: "Generated 3 documents: X.md (Y functions, Z% avg), ..."
+
 ## Common Development Commands
 
 ### Testing Skills Locally

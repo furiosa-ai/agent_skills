@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Community-curated collection of Claude Code skills and agent tools",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -16,6 +16,15 @@
       "strict": false,
       "skills": [
         "./git-commit-helper"
+      ]
+    },
+    {
+      "name": "documentation-tools",
+      "description": "Code documentation generation with accuracy tracking and source citation",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./code-documentation"
       ]
     }
   ]

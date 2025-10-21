@@ -16,7 +16,20 @@ Professional Git commit message generation and PR history management following i
 - Smart base branch detection with user confirmation (handles feature-from-feature branches)
 - Atomic commit suggestions with safety-first approach
 
-**Usage**:
+### Code Documentation
+
+Generate rigorous documentation from multiple sources with accuracy tracking and source citations.
+
+**Features**:
+- Multi-source support (GitHub, web pages, Google Drive, Notion, local files)
+- Per-sentence confidence scoring (accuracy percentage)
+- Accuracy threshold filtering (exclude low-confidence statements)
+- Inline source citations for every statement
+- PR comment integration for progressive refinement
+- Multiple document types (API Reference, System Overview, Tutorial)
+- MCP server integration for cloud platforms
+
+**Usage (Git Commit Helper)**:
 ```bash
 # Generate commit message
 커밋 메시지 만들어줘
@@ -33,6 +46,20 @@ PR 업데이트해줘
 # If skill is not recognized, prefix with skill name:
 git-commit-helper 커밋 메시지 만들어줘
 git-commit-helper PR 히스토리 정리해줘
+```
+
+**Usage (Code Documentation)**:
+```bash
+# Generate documentation
+코드 문서화해줘
+API 레퍼런스 만들어줘
+시스템 오버뷰 작성해줘
+
+# Update documentation from PR comments
+PR #123 코멘트 반영해줘
+
+# If skill is not recognized, prefix with skill name:
+code-documentation 이 모듈 문서 생성해줘
 ```
 
 ## 🚀 Installation
@@ -137,6 +164,56 @@ Implements Chris Beams' seven rules for great Git commit messages:
 - `find_base_branch.py`: Find and rank base branch candidates with smart detection
 
 ## 💡 Usage Examples
+
+### Code Documentation Generation
+
+**Scenario**: Document a module with accuracy tracking
+
+```bash
+> API 문서 만들어줘. src/parser.rs 분석해서, 최소 정확도 80%로
+```
+
+**Claude's workflow**:
+1. Collects configuration (source, doc type, threshold)
+2. Analyzes source code
+3. Generates documentation with inline sources and confidence scores
+
+**Sample output** (`parser-api.md`):
+```markdown
+# Parser API Reference
+
+**Generated**: 2025-10-21
+**Accuracy Threshold**: 80%
+**Last Updated**: 2025-10-21
+**Sources Analyzed**: 3
+
+## Functions
+
+### `parse(input: String)`
+
+Parses input string into AST ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L45)) [95%]
+
+**Parameters:**
+- `input` (String): Source code to parse ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L46)) [95%]
+
+**Returns:**
+- `Result<AST, ParseError>`: Parsed AST or error ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L47)) [92%]
+
+The parser uses recursive descent algorithm ([Source1](https://github.com/org/repo/blob/main/src/parser.rs#L100), [Source2](https://github.com/org/repo/blob/main/docs/design.md#L23)) [85%]
+```
+
+**User adds PR comment**: "Line 15: Parser also validates syntax during parsing"
+
+```bash
+> PR #456 코멘트 반영해줘
+```
+
+**Updated line**:
+```markdown
+Parses input string into AST and validates syntax ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L45), [PR Comment](https://github.com/org/repo/pull/456#discussion_r12345)) [95%]
+```
+
+---
 
 ### Commit Message Generation
 
