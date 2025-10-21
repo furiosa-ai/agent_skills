@@ -22,7 +22,7 @@
 **What you'll build:** [Description of end result] ([Source](URL)) [confidence%]
 
 **Time to complete:** [Estimated time] ([Source](URL)) [confidence%]
-> Accuracy rationale: Based on step count (40%) and estimated complexity per step (35%)
+> Rationale: Based on step count (40%) and estimated complexity per step (35%)
 
 ---
 

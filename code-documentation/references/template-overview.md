@@ -20,7 +20,7 @@
 [High-level description of the system, its purpose, and primary use cases] ([Source](URL)) [confidence%]
 
 [Context about when and why this system was created or is used] ([Source](URL)) [confidence%]
-> Accuracy rationale: README states primary purpose (50%), architectural patterns observed (30%)
+> Rationale: README states primary purpose (50%), architectural patterns observed (30%)
 
 ---
 

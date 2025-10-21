@@ -155,7 +155,7 @@ For statements with accuracy 70-90%, or when combining multiple sources, **provi
 
 ```markdown
 Statement content ([Source](URL)) [accuracy%]
-> Accuracy rationale: [breakdown of confidence factors]
+> Rationale: [breakdown of confidence factors]
 ```
 
 **Rationale components** (total should sum to accuracy%):
@@ -168,7 +168,7 @@ Statement content ([Source](URL)) [accuracy%]
 
 ```markdown
 The `process()` function validates and sanitizes input ([Source](https://github.com/org/repo/blob/main/src/lib.rs#L50)) [85%]
-> Accuracy rationale: Direct code inspection confirms validation call (50%), function name suggests sanitization (20%), parameter type hints support this (15%)
+> Rationale: Direct code inspection confirms validation call (50%), function name suggests sanitization (20%), parameter type hints support this (15%)
 ```
 
 **When to include rationale:**
@@ -196,7 +196,7 @@ The `calculate()` function performs matrix multiplication ([Source](https://gith
 **Inference-based statement (rationale recommended):**
 ```markdown
 This module is responsible for user authentication ([Source1](https://github.com/org/repo/blob/main/src/auth.rs#L10), [Source2](https://github.com/org/repo/blob/main/README.md#L23)) [82%]
-> Accuracy rationale: Module named 'auth' (30%), contains login/logout/verify functions (30%), README explicitly mentions "handles authentication" (22%)
+> Rationale: Module named 'auth' (30%), contains login/logout/verify functions (30%), README explicitly mentions "handles authentication" (22%)
 ```
 
 **Multiple sources:**
@@ -269,7 +269,7 @@ Template: `[Main claim] [supporting detail 1], [supporting detail 2] ([Sources])
 Example:
 ```markdown
 The `authenticate()` function validates JWT tokens using RS256 algorithm, with a 1-hour expiration window ([Source1](code), [Source2](config), [Source3](docs)) [88%]
-> Accuracy rationale: Code shows JWT validation (50%), config specifies RS256 (20%), docs confirm 1-hour timeout (18%)
+> Rationale: Code shows JWT validation (50%), config specifies RS256 (20%), docs confirm 1-hour timeout (18%)
 ```
 
 **Special cases:**

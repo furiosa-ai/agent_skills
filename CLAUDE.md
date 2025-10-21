@@ -133,7 +133,7 @@ This skill implements a 3-phase accuracy-based documentation workflow with multi
 **Key Design Principles**:
 1. **Accuracy-based filtering**: Exclude low-confidence statements, gaps > speculation
 2. **Source transparency**: Every claim needs inline link and confidence score
-3. **Accuracy rationale**: Blockquote rationale for 70-90% statements explaining confidence breakdown
+3. **Rationale**: Blockquote rationale for 70-90% statements explaining confidence breakdown
 4. **Progressive refinement**: Document improves through PR feedback cycle
 5. **Conflict resolution**: Replace conflicting info + TODO comment for human verification
 6. **Incremental updates**: Auto-detect scope from PR comments, update only affected sections

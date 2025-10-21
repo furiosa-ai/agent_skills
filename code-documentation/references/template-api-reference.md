@@ -28,7 +28,7 @@
 
 ### [Concept 2]
 [Explanation of key concept requiring inference] ([Source1](URL1), [Source2](URL2)) [82%]
-> Accuracy rationale: Module structure suggests this pattern (40%), naming conventions align (25%), similar patterns in related components (17%)
+> Rationale: Module structure suggests this pattern (40%), naming conventions align (25%), similar patterns in related components (17%)
 
 ## Functions
 
