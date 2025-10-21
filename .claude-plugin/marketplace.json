@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "git-tools",
-      "description": "Git workflow enhancement tools including commit message generation and PR history management",
+      "description": "Git commit messages (커밋 메시지), PR creation/updates (PR 만들어줘), and commit history cleanup (히스토리 정리). Triggers: 'commit message', 'create PR', 'update PR', 'restructure commits'.",
       "source": "./",
       "strict": false,
       "skills": [
@@ -20,7 +20,7 @@
     },
     {
       "name": "documentation-tools",
-      "description": "Code documentation generation with accuracy tracking and source citation",
+      "description": "Technical documentation with accuracy tracking (코드 문서화). Generate API references, system overviews, tutorials with source citations. Triggers: 'document code', 'API reference', 'system overview', 'generate docs'.",
       "source": "./",
       "strict": false,
       "skills": [

@@ -1,6 +1,6 @@
 ---
 name: git-commit-helper
-description: This skill should be used when creating commit messages from staged changes, restructuring commit history for PRs, creating pull requests, or updating existing pull requests. Triggers include requests like "create commit message", "write commit", "clean up commits", "restructure PR history", "organize commits", "create PR", "open PR", "PR 만들어줘", "PR 생성해줘", "update PR", "PR 업데이트해줘", or "PR 수정해줘". Applies Chris Beams' seven rules for professional commit messages and atomic commit principles.
+description: Generate professional Git commit messages and manage pull request workflow. Use when user stages changes and requests commit message, wants to restructure PR commit history, or needs to create/update pull requests. Triggers include "커밋 메시지 만들어줘", "commit message", "PR 만들어줘", "create PR", "PR 히스토리 정리", "restructure commits", "clean up commits", "PR 업데이트", "update PR". Applies Chris Beams' seven rules for commit messages and atomic commit principles.
 ---
 
 # Git Commit Helper
@@ -8,6 +8,26 @@ description: This skill should be used when creating commit messages from staged
 ## Overview
 
 Guide commit message creation and PR history restructuring following professional Git practices based on Chris Beams' seven rules. Supports two main workflows: generating commit messages from staged changes, and reorganizing commit history based on final diff analysis.
+
+## Trigger Phrases
+
+This skill activates automatically when you use phrases like:
+
+**Korean (한국어)**:
+- 커밋 메시지 만들어줘 / 작성해줘
+- PR 만들어줘 / 생성해줘
+- PR 히스토리 정리해줘 / 정리하자
+- PR 업데이트해줘 / 수정해줘
+
+**English**:
+- Create/generate/write commit message
+- Make/create/open pull request (PR)
+- Clean up/restructure/organize commits
+- Update PR / modify PR description
+
+**💡 Tip**: If skill doesn't activate automatically, use explicit prefix:
+- `git-commit-helper 커밋 메시지 만들어줘`
+- `git-commit-helper create commit message`
 
 ## Core Capabilities
 

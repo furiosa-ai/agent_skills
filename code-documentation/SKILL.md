@@ -1,6 +1,6 @@
 ---
 name: code-documentation
-description: Use when documenting code, APIs, or systems with accuracy tracking. Generates documentation with per-sentence confidence scores and inline source citations. Updates documentation based on PR comments.
+description: Generate technical documentation with accuracy tracking from code, APIs, and systems. Use when user wants to document modules, create API references, write system overviews, or generate tutorials with source citations and confidence scores. Triggers include "코드 문서화", "document this code", "API 레퍼런스", "API reference", "시스템 오버뷰", "system overview", "문서 생성", "generate documentation", "튜토리얼 작성", "write tutorial". Updates existing documentation based on PR comments.
 ---
 
 # Code Documentation Skill
@@ -8,6 +8,28 @@ description: Use when documenting code, APIs, or systems with accuracy tracking.
 ## Overview
 
 This skill generates rigorous documentation from multiple sources (GitHub, web pages, Google Drive, Notion, local files) with **per-sentence accuracy tracking**. Each statement includes an inline source citation and a confidence score. Statements below a user-defined accuracy threshold are excluded.
+
+## Trigger Phrases
+
+This skill activates automatically when you use phrases like:
+
+**Korean (한국어)**:
+- 코드 문서화해줘 / 문서 생성해줘
+- API 레퍼런스 만들어줘 / 작성해줘
+- 시스템 오버뷰 작성해줘 / 만들어줘
+- 튜토리얼 만들어줘 / 작성해줘
+- PR #123 코멘트 반영해줘
+
+**English**:
+- Document this code/module/API
+- Create/generate/write API reference
+- Write system overview/architecture doc
+- Generate tutorial/guide
+- Update documentation from PR comments
+
+**💡 Tip**: If skill doesn't activate automatically, use explicit prefix:
+- `code-documentation 코드 문서화해줘`
+- `code-documentation generate API reference`
 
 The skill supports **progressive refinement**: users can add questions/answers as GitHub PR comments, and Claude will update the documentation based on that feedback.
 
