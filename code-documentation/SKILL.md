@@ -33,6 +33,35 @@ This skill activates automatically when you use phrases like:
 
 The skill supports **progressive refinement**: users can add questions/answers as GitHub PR comments, and Claude will update the documentation based on that feedback.
 
+## ⚠️ CRITICAL RULES (Read Before Every Task)
+
+Before starting documentation work, verify you understand these **non-negotiable** rules:
+
+### Citation Format (MANDATORY)
+- [ ] **Every statement** has `([Source](URL)) [accuracy%]` format
+- [ ] Local files use **relative paths**: `src/file.rs#L50` (NO `file://` prefix)
+- [ ] Statements with `accuracy < threshold` are **EXCLUDED** (don't write them)
+- [ ] 70-90% accuracy statements **MUST have rationale blockquote** below
+
+### Accuracy Calculation (MANDATORY)
+- [ ] **90-100%**: Direct facts from source code/docs
+- [ ] **70-89%**: Clear inference combining multiple facts
+- [ ] **50-69%**: Speculation involved (usually below threshold → excluded)
+- [ ] **Below threshold**: DO NOT WRITE (mark as Analysis Gap instead)
+
+### GitHub Formats (MANDATORY)
+- [ ] Use **Mermaid** for diagrams (graph TD, sequenceDiagram, classDiagram, etc.)
+- [ ] Use **tables** for structured data (parameters, types, etc.)
+- [ ] Use **GitHub alerts** for important notes: `> [!NOTE]`, `> [!WARNING]`
+- [ ] Use **LaTeX** for math: `$inline$` or `$$block$$`
+
+### Workflow Phases (MANDATORY ORDER)
+1. **Phase 1**: Collect config (sources, accuracy threshold, doc type, template)
+2. **Phase 2**: Generate documentation with citations
+3. **Phase 3**: Include metadata (generated date, threshold, sources count) + Changelog
+
+**⚠️ If you forget these rules during the task, STOP and re-read this section.**
+
 ## When to Use This Skill
 
 Trigger this skill when:
@@ -44,6 +73,8 @@ Trigger this skill when:
 ## Workflow
 
 ### Phase 1: Configuration Collection
+
+⚠️ **Remember**: Must complete this phase BEFORE generating any documentation.
 
 Before analyzing any code or sources, collect the following settings from the user:
 
@@ -117,6 +148,8 @@ Ask about:
 - **Existing Template**: Does the project have a documentation template to follow?
 
 ### Phase 2: Document Generation
+
+⚠️ **Remember**: Every statement MUST have `([Source](URL)) [accuracy%]`. No exceptions.
 
 #### 2.1 Source Access Strategy
 
@@ -421,6 +454,8 @@ After generating the document:
 4. Confirm: "Document saved to `[filename].md` with [X] statements (avg accuracy: [Y]%)"
 
 ### Phase 3: PR Comment Integration
+
+⚠️ **Remember**: PR comments are high-confidence sources (90-95%). Update only affected sections, preserve rest.
 
 #### 3.1 User Workflow
 
