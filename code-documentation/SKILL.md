@@ -58,8 +58,8 @@ Supported source types:
   - Example: `https://docs.example.com/api-guide`
 - **Google Drive**: Document/spreadsheet links (requires MCP server or user-provided content)
 - **Notion Pages**: Notion URLs (requires MCP server or user-provided content)
-- **Local Files**: Absolute file paths, including PDFs
-  - Example: `/workspace/project/src/module.py`
+- **Local Files**: Relative paths (no `file://` prefix), including PDFs
+  - Example: `src/module.py`, `docs/design.md`
 
 **Follow-up: Document Scope**
 
@@ -191,6 +191,11 @@ Statement content ([Source](URL)) [accuracy%]
 **High-confidence statement (no rationale needed):**
 ```markdown
 The `calculate()` function performs matrix multiplication ([Source](https://github.com/org/repo/blob/main/src/math.rs#L45)) [95%]
+```
+
+**Local file citation (use relative path, no file:// prefix):**
+```markdown
+The Parser struct implements recursive descent algorithm ([Source](src/parser.rs#L120)) [93%]
 ```
 
 **Inference-based statement (rationale recommended):**

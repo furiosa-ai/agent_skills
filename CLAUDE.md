@@ -145,6 +145,7 @@ This skill implements a 3-phase accuracy-based documentation workflow with multi
 **Citation Format**:
 - Single source: `Statement ([Source](URL)) [95%]`
 - Multiple sources: `Statement ([Source1](URL1), [Source2](URL2)) [88%]`
+- Local files: Use relative paths without `file://` prefix (e.g., `src/module.rs#L50`)
 - With PR comment: `Statement ([Source](url), [PR Comment](pr-url)) [90%]`
 - With rationale: Blockquote immediately below statement for 70-90% accuracy
 
