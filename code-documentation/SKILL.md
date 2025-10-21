@@ -351,6 +351,23 @@ fn process(input: &str) -> Result<Output> {
 - [ ] TODO: Add async support
 ```
 
+**Mathematical expressions (LaTeX):**
+```markdown
+Inline: The quadratic formula is $x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}$
+
+Block:
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+Or use code block:
+```math
+E = mc^2
+```
+```
+
+Rendered by MathJax in GitHub Issues, PRs, wikis, and markdown files.
+
 #### 2.4 Document Structure
 
 All generated documents must include metadata at the top:
