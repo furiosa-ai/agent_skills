@@ -20,21 +20,22 @@ Professional Git commit message generation and PR history management following i
 
 > **⚠️ Experimental Feature**: This skill is under active development. The workflow, accuracy calculation methods, and output formats may change based on user feedback. Use with caution in production environments.
 
-Generate rigorous documentation from multiple sources with accuracy tracking and source citations using a 3-phase workflow:
+Generate rigorous documentation from multiple sources with accuracy tracking and source citations.
 
-1. **plan-docs**: Plan documentation structure and identify sources
-2. **generate-docs**: Generate documentation with per-sentence accuracy tracking
+**Workflow** (hands-off after initial questions):
+1. **prepare-docs**: Discover sources, analyze requirements, save to file
+2. **write-docs**: Generate documentation automatically from requirements file
 3. **update-docs**: Integrate PR comments into existing documentation
 
 **Features**:
 - Multi-source support (GitHub, web pages, Google Drive, Notion, local files)
 - Per-sentence confidence scoring (accuracy percentage)
-- Accuracy threshold filtering (exclude low-confidence statements)
 - Inline source citations with relative paths for every statement
 - PR comment integration for progressive refinement
 - Multiple document types (API Reference, System Overview, Tutorial)
-- Gap analysis with filling strategies during planning phase
+- Active source discovery (tests, types, examples, design docs)
 - MCP server integration for cloud platforms
+- Rationale required for low-confidence statements (< 70%)
 
 **Known Limitations**:
 - Accuracy calculation uses subjective inference (no formal verification)
@@ -71,30 +72,29 @@ git-commit-helper 커밋 메시지 만들어줘
 ### Code Documentation Usage 🧪
 
 ```bash
-# Phase 1: Plan documentation
-문서화 계획 세워줘
-# or: plan documentation structure
+# Step 1: Prepare requirements
+문서 준비해줘
+# or: prepare documentation
 
-# Phase 2: Generate documentation
-문서 생성해줘
-# or: generate documentation
+# Step 2: Generate from requirements
+write-docs 실행해줘
+# or: run write-docs
 
-API 레퍼런스 만들어줘
-# or: generate API reference
-
-# Phase 3: Update from PR comments
+# Step 3: Update from PR comments
 PR #123 코멘트 반영해줘
 # or: update docs from PR comments
+```
 
-# ⚠️ If skill doesn't activate, use explicit prefix:
-plan-docs 문서화 계획 세워줘
-generate-docs API 문서 만들어줘
+**⚠️ If skill doesn't activate, use explicit prefix:**
+```bash
+prepare-docs 문서 준비해줘
+write-docs 실행해줘
 update-docs PR 코멘트 반영해줘
 ```
 
 **See full trigger phrase lists**:
-- [plan-docs/SKILL.md](plan-docs/SKILL.md)
-- [generate-docs/SKILL.md](generate-docs/SKILL.md)
+- [prepare-docs/SKILL.md](prepare-docs/SKILL.md)
+- [write-docs/SKILL.md](write-docs/SKILL.md)
 - [update-docs/SKILL.md](update-docs/SKILL.md)
 
 ## 🚀 Installation
@@ -310,11 +310,11 @@ Should I update the PR?
 
 ### Code Documentation Generation 🧪
 
-**Scenario**: Document a module with accuracy tracking using 3-phase workflow
+**Scenario**: Document a module with accuracy tracking using automated workflow
 
-#### Phase 1: Planning
+#### Step 1: Prepare Requirements
 ```bash
-> 문서화 계획 세워줘
+> 문서 준비해줘
 ```
 
 **Claude asks**:
@@ -323,29 +323,37 @@ Should I update the PR?
 3. What document type? (API Reference, System Overview, Tutorial, Custom)
 
 **User provides**:
-- Sources: `src/parser.rs`, `docs/design.md`
+- Sources: `src/parser.rs`
 - Focus: Parser implementation details
 - Type: API Reference
-- Threshold: 80%
-
-**Claude outputs**:
-- Document structure with planned sections
-- Source inventory (what info each source provides)
-- Gap analysis with filling strategies
-
-#### Phase 2: Generation
-```bash
-> 문서 생성해줘
-```
 
 **Claude's workflow**:
-1. Receives plan from Phase 1
-2. Analyzes sources thoroughly
-3. Generates documentation with per-sentence citations and accuracy scores
-4. Excludes statements below 80% threshold
-5. Adds rationale for statements with accuracy < 90%
+1. Analyzes core sources (src/parser.rs)
+2. **Actively discovers related sources**:
+   - Searches for test files → finds `tests/parser_test.rs`
+   - Finds type definitions → discovers `src/types.rs`
+   - Searches docs/ → finds `docs/design.md`
+3. Builds Content Map showing primary + related sources per function/type
+4. **Saves complete requirements to `docs/doc-requirements.md`**
 
-**Sample output** (`parser-api.md`):
+**Claude outputs**:
+```
+문서 요구사항을 docs/doc-requirements.md에 저장했습니다.
+'write-docs 실행해줘'를 입력하면 자동으로 문서를 생성합니다.
+```
+
+#### Step 2: Generate Documentation
+```bash
+> write-docs 실행해줘
+```
+
+**Claude's workflow** (fully automated):
+1. Loads requirements from `docs/doc-requirements.md`
+2. Accesses all discovered sources
+3. Generates documentation with per-sentence citations and accuracy scores
+4. Adds mandatory rationale for statements with accuracy below 70%
+
+**Sample output** (`docs/parser-api.md`):
 ```markdown
 # Parser API Reference
 
@@ -361,11 +369,13 @@ Parses input string into AST ([Source](../src/parser.rs#L45)) [95%]
 **Returns:**
 - `Result<AST, ParseError>`: Parsed AST or error ([Source](../src/parser.rs#L47)) [92%]
 
-The parser uses recursive descent algorithm ([Source1](../src/parser.rs#L100), [Source2](../docs/design.md#L23)) [85%]
-> Rationale: Code structure shows recursive function calls (60%), design doc confirms recursive descent pattern (25%)
+The parser uses recursive descent algorithm ([Source1](../src/parser.rs#L100), [Source2](../docs/design.md#L23)) [75%]
+
+The parser likely implements error recovery ([Source](../src/parser.rs#L200-250)) [65%]
+> Rationale: Code shows try-catch patterns and continues after errors, but no explicit error recovery documentation found. Inference based on code structure only.
 ```
 
-#### Phase 3: PR Comment Integration
+#### Step 3: PR Comment Integration
 **User creates PR with documentation, reviewer adds comment**:
 "Line 5: Parser also validates syntax during parsing"
 
@@ -384,32 +394,34 @@ The parser uses recursive descent algorithm ([Source1](../src/parser.rs#L100), [
 Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45), [PR Comment](https://github.com/org/repo/pull/456#discussion_r12345)) [95%]
 ```
 
+---
+
 ## 🔧 Troubleshooting
 
 ### Skill Activation Issues
 
-**Problem**: Claude doesn't recognize trigger phrases like "커밋 메시지 만들어줘" or "코드 문서화해줘"
+**Problem**: Claude doesn't recognize trigger phrases like "커밋 메시지 만들어줘" or "문서 준비해줘"
 
 **Solutions**:
 
 1. **Use explicit skill name prefix**:
    ```bash
-   # Instead of: 커밋 메시지 만들어줘
+   # Git Commit Helper
    git-commit-helper 커밋 메시지 만들어줘
 
-   # Instead of: API 문서 만들어줘
-   code-documentation API 문서 만들어줘
+   # Documentation
+   prepare-docs 문서 준비해줘
+   write-docs 실행해줘
+   update-docs PR 코멘트 반영해줘
    ```
 
 2. **Try English alternatives**:
-   - "create commit message" (instead of 커밋 메시지 만들어줘)
-   - "plan documentation" (instead of 문서화 계획 세워줘)
-   - "generate documentation" (instead of 문서 생성해줘)
-   - "create pull request" (instead of PR 만들어줘)
+   - Git: "create commit message", "create pull request"
+   - Docs: "prepare documentation", "run write-docs", "update docs from PR"
 
 3. **Be more specific with context**:
    - ❌ Too vague: "문서 만들어줘"
-   - ✅ Better: "문서화 계획 세워줘 - src/parser.rs 분석해서 API Reference"
+   - ✅ Better: "문서 준비해줘 - src/parser.rs 분석해서 API Reference"
    - ❌ Too vague: "PR 만들어"
    - ✅ Better: "현재 브랜치에서 main으로 PR 만들어줘"
 
@@ -417,7 +429,7 @@ Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45
    ```bash
    # Verify skills are installed
    ls ~/.claude/skills/
-   # Should show: git-commit-helper, plan-docs, generate-docs, update-docs
+   # Should show: git-commit-helper, prepare-docs, write-docs, update-docs
 
    # Reinstall if needed
    /plugin marketplace add https://github.com/furiosa-ai/agent_skills
@@ -426,7 +438,8 @@ Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45
 5. **Try variations of trigger phrases**:
    - Commit: "write commit", "generate commit message", "create commit"
    - PR: "open PR", "make pull request", "create PR"
-   - Docs: "plan documentation structure", "generate API reference", "update docs from PR"
+   - Docs (Interactive): "plan documentation structure", "generate API reference", "update docs from PR"
+   - Docs (Automated): "prepare doc requirements", "write documentation", "improve docs"
 
 **Why this happens**: Claude uses the `description` field in SKILL.md to decide when to activate skills. If your phrase doesn't match the triggers listed, Claude might not recognize it. Using the explicit prefix (`skill-name command`) always works.
 
