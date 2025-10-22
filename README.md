@@ -20,15 +20,20 @@ Professional Git commit message generation and PR history management following i
 
 > **⚠️ Experimental Feature**: This skill is under active development. The workflow, accuracy calculation methods, and output formats may change based on user feedback. Use with caution in production environments.
 
-Generate rigorous documentation from multiple sources with accuracy tracking and source citations.
+Generate rigorous documentation from multiple sources with accuracy tracking and source citations using a 3-phase workflow:
+
+1. **plan-docs**: Plan documentation structure and identify sources
+2. **generate-docs**: Generate documentation with per-sentence accuracy tracking
+3. **update-docs**: Integrate PR comments into existing documentation
 
 **Features**:
 - Multi-source support (GitHub, web pages, Google Drive, Notion, local files)
 - Per-sentence confidence scoring (accuracy percentage)
 - Accuracy threshold filtering (exclude low-confidence statements)
-- Inline source citations for every statement
+- Inline source citations with relative paths for every statement
 - PR comment integration for progressive refinement
 - Multiple document types (API Reference, System Overview, Tutorial)
+- Gap analysis with filling strategies during planning phase
 - MCP server integration for cloud platforms
 
 **Known Limitations**:
@@ -66,24 +71,31 @@ git-commit-helper 커밋 메시지 만들어줘
 ### Code Documentation Usage 🧪
 
 ```bash
-# Generate documentation
-코드 문서화해줘
-# or: document this code
+# Phase 1: Plan documentation
+문서화 계획 세워줘
+# or: plan documentation structure
+
+# Phase 2: Generate documentation
+문서 생성해줘
+# or: generate documentation
 
 API 레퍼런스 만들어줘
 # or: generate API reference
 
-시스템 오버뷰 작성해줘
-# or: write system overview
-
-# Update documentation from PR comments
+# Phase 3: Update from PR comments
 PR #123 코멘트 반영해줘
+# or: update docs from PR comments
 
 # ⚠️ If skill doesn't activate, use explicit prefix:
-code-documentation API 문서 만들어줘
+plan-docs 문서화 계획 세워줘
+generate-docs API 문서 만들어줘
+update-docs PR 코멘트 반영해줘
 ```
 
-**See full trigger phrase list**: [code-documentation/SKILL.md](code-documentation/SKILL.md#trigger-phrases)
+**See full trigger phrase lists**:
+- [plan-docs/SKILL.md](plan-docs/SKILL.md)
+- [generate-docs/SKILL.md](generate-docs/SKILL.md)
+- [update-docs/SKILL.md](update-docs/SKILL.md)
 
 ## 🚀 Installation
 
@@ -298,50 +310,78 @@ Should I update the PR?
 
 ### Code Documentation Generation 🧪
 
-**Scenario**: Document a module with accuracy tracking
+**Scenario**: Document a module with accuracy tracking using 3-phase workflow
 
+#### Phase 1: Planning
 ```bash
-> API 문서 만들어줘. src/parser.rs 분석해서, 최소 정확도 80%로
+> 문서화 계획 세워줘
+```
+
+**Claude asks**:
+1. What sources to analyze? (GitHub, web, local files, etc.)
+2. Any specific keywords or topics to focus on?
+3. What document type? (API Reference, System Overview, Tutorial, Custom)
+
+**User provides**:
+- Sources: `src/parser.rs`, `docs/design.md`
+- Focus: Parser implementation details
+- Type: API Reference
+- Threshold: 80%
+
+**Claude outputs**:
+- Document structure with planned sections
+- Source inventory (what info each source provides)
+- Gap analysis with filling strategies
+
+#### Phase 2: Generation
+```bash
+> 문서 생성해줘
 ```
 
 **Claude's workflow**:
-1. Collects configuration (source, doc type, threshold)
-2. Analyzes source code
-3. Generates documentation with inline sources and confidence scores
+1. Receives plan from Phase 1
+2. Analyzes sources thoroughly
+3. Generates documentation with per-sentence citations and accuracy scores
+4. Excludes statements below 80% threshold
+5. Adds rationale for statements with accuracy < 90%
 
 **Sample output** (`parser-api.md`):
 ```markdown
 # Parser API Reference
 
-**Generated**: 2025-10-21
-**Accuracy Threshold**: 80%
-**Last Updated**: 2025-10-21
-**Sources Analyzed**: 3
-
 ## Functions
 
 ### `parse(input: String)`
 
-Parses input string into AST ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L45)) [95%]
+Parses input string into AST ([Source](../src/parser.rs#L45)) [95%]
 
 **Parameters:**
-- `input` (String): Source code to parse ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L46)) [95%]
+- `input` (String): Source code to parse ([Source](../src/parser.rs#L46)) [95%]
 
 **Returns:**
-- `Result<AST, ParseError>`: Parsed AST or error ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L47)) [92%]
+- `Result<AST, ParseError>`: Parsed AST or error ([Source](../src/parser.rs#L47)) [92%]
 
-The parser uses recursive descent algorithm ([Source1](https://github.com/org/repo/blob/main/src/parser.rs#L100), [Source2](https://github.com/org/repo/blob/main/docs/design.md#L23)) [85%]
+The parser uses recursive descent algorithm ([Source1](../src/parser.rs#L100), [Source2](../docs/design.md#L23)) [85%]
+> Rationale: Code structure shows recursive function calls (60%), design doc confirms recursive descent pattern (25%)
 ```
 
-**User adds PR comment**: "Line 15: Parser also validates syntax during parsing"
+#### Phase 3: PR Comment Integration
+**User creates PR with documentation, reviewer adds comment**:
+"Line 5: Parser also validates syntax during parsing"
 
 ```bash
 > PR #456 코멘트 반영해줘
 ```
 
+**Claude's workflow**:
+1. Fetches PR comments via `gh` CLI
+2. Extracts new information from comment
+3. Locates target section in document
+4. Updates statement with PR comment as additional source
+
 **Updated line**:
 ```markdown
-Parses input string into AST and validates syntax ([Source](https://github.com/org/repo/blob/main/src/parser.rs#L45), [PR Comment](https://github.com/org/repo/pull/456#discussion_r12345)) [95%]
+Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45), [PR Comment](https://github.com/org/repo/pull/456#discussion_r12345)) [95%]
 ```
 
 ## 🔧 Troubleshooting
@@ -363,12 +403,13 @@ Parses input string into AST and validates syntax ([Source](https://github.com/o
 
 2. **Try English alternatives**:
    - "create commit message" (instead of 커밋 메시지 만들어줘)
-   - "generate API documentation" (instead of API 문서 만들어줘)
+   - "plan documentation" (instead of 문서화 계획 세워줘)
+   - "generate documentation" (instead of 문서 생성해줘)
    - "create pull request" (instead of PR 만들어줘)
 
 3. **Be more specific with context**:
    - ❌ Too vague: "문서 만들어줘"
-   - ✅ Better: "src/parser.rs 코드 분석해서 API 레퍼런스 만들어줘"
+   - ✅ Better: "문서화 계획 세워줘 - src/parser.rs 분석해서 API Reference"
    - ❌ Too vague: "PR 만들어"
    - ✅ Better: "현재 브랜치에서 main으로 PR 만들어줘"
 
@@ -376,7 +417,7 @@ Parses input string into AST and validates syntax ([Source](https://github.com/o
    ```bash
    # Verify skills are installed
    ls ~/.claude/skills/
-   # Should show: git-commit-helper, code-documentation
+   # Should show: git-commit-helper, plan-docs, generate-docs, update-docs
 
    # Reinstall if needed
    /plugin marketplace add https://github.com/furiosa-ai/agent_skills
@@ -385,7 +426,7 @@ Parses input string into AST and validates syntax ([Source](https://github.com/o
 5. **Try variations of trigger phrases**:
    - Commit: "write commit", "generate commit message", "create commit"
    - PR: "open PR", "make pull request", "create PR"
-   - Docs: "document this", "write documentation", "generate docs"
+   - Docs: "plan documentation structure", "generate API reference", "update docs from PR"
 
 **Why this happens**: Claude uses the `description` field in SKILL.md to decide when to activate skills. If your phrase doesn't match the triggers listed, Claude might not recognize it. Using the explicit prefix (`skill-name command`) always works.
 
