@@ -9,6 +9,15 @@ description: Generate professional Git commit messages and manage pull request w
 
 Guide commit message creation and PR history restructuring following professional Git practices based on Chris Beams' seven rules. Supports two main workflows: generating commit messages from staged changes, and reorganizing commit history based on final diff analysis.
 
+## ⚠️ Critical Execution Rules
+
+**NEVER cd to skill folder.** Always execute scripts from user's current working directory to preserve git repository context.
+
+**Script execution:**
+- Use absolute path: `[skill_directory]/scripts/[script_name].py`
+- You know where this SKILL.md is located - use that base directory
+- Git commands must run in user's repository, not the skill directory
+
 ## Trigger Phrases
 
 This skill activates automatically when you use phrases like:
@@ -47,7 +56,7 @@ Create professional commit messages following the seven rules from staged change
 
 1. **Extract staged changes**:
    ```bash
-   python scripts/analyze_diff.py --staged --json
+   python [skill_directory]/scripts/analyze_diff.py --staged --json
    ```
 
    Returns:
@@ -112,7 +121,7 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
 
    **Step 1 - Find candidates**:
    ```bash
-   python scripts/find_base_branch.py
+   python [skill_directory]/scripts/find_base_branch.py
    ```
 
    **Step 2 - Show candidates to user**:
@@ -139,10 +148,10 @@ Analyze PR changes and suggest atomic commit organization based on final diff.
    **Step 4 - Run with selected base**:
    ```bash
    # If user selects candidate #1 (99cafb6bc3)
-   python scripts/analyze_diff.py 99cafb6bc3 --json
+   python [skill_directory]/scripts/analyze_diff.py 99cafb6bc3 --json
 
    # If user specifies custom base (e.g., refactor/aten-infrastructure-improvements)
-   python scripts/analyze_diff.py refactor/aten-infrastructure-improvements --json
+   python [skill_directory]/scripts/analyze_diff.py refactor/aten-infrastructure-improvements --json
    ```
 
    **Why user selection is needed**:
@@ -264,7 +273,7 @@ Generate PR title and description from commit history and create a new pull requ
 
 2. **Find base branch** (same as restructuring workflow):
    ```bash
-   python scripts/find_base_branch.py --json
+   python [skill_directory]/scripts/find_base_branch.py --json
    ```
 
    Show candidates to user and let them select.
@@ -301,10 +310,10 @@ Generate PR title and description from commit history and create a new pull requ
 
    ```bash
    # Normal execution (auto-fallback)
-   python scripts/analyze_diff.py <base> --json
+   python [skill_directory]/scripts/analyze_diff.py <base> --json
 
    # Force large PR (if additions > 5000)
-   python scripts/analyze_diff.py <base> --json --allow-large
+   python [skill_directory]/scripts/analyze_diff.py <base> --json --allow-large
    ```
 
    **Key principle**: Individual commits are reference only. The final diff shows what actually changed and that's what matters for PR description.
@@ -504,14 +513,14 @@ Refresh PR title and description based on latest commit history.
 
 **analyze_diff.py**: Unified diff analyzer for both staged changes and PR analysis
 - Usage:
-  - Staged mode: `python scripts/analyze_diff.py --staged --json`
-  - Range mode: `python scripts/analyze_diff.py <base_commit> --json [--allow-large]`
+  - Staged mode: `python [skill_directory]/scripts/analyze_diff.py --staged --json`
+  - Range mode: `python [skill_directory]/scripts/analyze_diff.py <base_commit> --json [--allow-large]`
 - Returns: Diff, stats, diff_type, and mode-specific fields
 - Supports three-tier fallback strategy for large diffs (>5000 lines)
 - Claude uses output for commit messages (staged) or PR restructuring/creation (range)
 
 **find_base_branch.py**: Find base branch candidates for PR analysis
-- Usage: `python scripts/find_base_branch.py --json [--limit N]`
+- Usage: `python [skill_directory]/scripts/find_base_branch.py --json [--limit N]`
 - Returns: Ranked list of base branch candidates with commit counts
 - Scans all remote branches and finds merge-bases, sorted by proximity (fewer commits = closer base)
 - User selects the correct base from candidates before running analyze_diff.py
