@@ -6,24 +6,16 @@
   },
   "metadata": {
     "description": "Community-curated collection of Claude Code skills and agent tools",
-    "version": "1.4.0"
+    "version": "1.4.1"
   },
   "plugins": [
     {
-      "name": "git-tools",
-      "description": "Git commit messages (커밋 메시지), PR creation/updates (PR 만들어줘), and commit history cleanup (히스토리 정리). Triggers: 'commit message', 'create PR', 'update PR', 'restructure commits'.",
+      "name": "furiosa",
+      "description": "Git commit messages (커밋 메시지), PR creation/updates (PR 만들어줘), commit history cleanup (히스토리 정리), and automated technical documentation with accuracy tracking (자동 코드 문서화). Triggers: 'commit message', 'create PR', 'update PR', 'restructure commits', 'prepare documentation', 'write documentation', 'update docs from PR'.",
       "source": "./",
       "strict": false,
       "skills": [
-        "./git-commit-helper"
-      ]
-    },
-    {
-      "name": "documentation-tools",
-      "description": "Automated technical documentation with accuracy tracking (자동 코드 문서화). Workflow: prepare-docs → write-docs → update-docs. Triggers: 'prepare documentation', 'write documentation', 'update docs from PR'.",
-      "source": "./",
-      "strict": false,
-      "skills": [
+        "./git-commit-helper",
         "./prepare-docs",
         "./write-docs",
         "./update-docs"
