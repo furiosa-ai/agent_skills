@@ -97,6 +97,51 @@ update-docs PR 코멘트 반영해줘
 - [write-docs/SKILL.md](write-docs/SKILL.md)
 - [update-docs/SKILL.md](update-docs/SKILL.md)
 
+### Slash Commands (Alternative Invocation)
+
+All skills can also be invoked using slash commands with the `furiosa:` namespace:
+
+#### Git Tools
+
+```bash
+# Generate commit message from staged changes
+/furiosa:commit-msg
+
+# Find base branch candidates for PR
+/furiosa:pr-analyze
+
+# Create pull request from current branch
+/furiosa:pr-create
+
+# Update existing PR description
+/furiosa:pr-update
+```
+
+#### Documentation Tools
+
+```bash
+# Step 1: Prepare requirements (interactive)
+/furiosa:prepare-docs
+
+# Step 2: Generate from requirements file
+/furiosa:write-docs
+
+# Step 3: Update from PR comments (requires PR number)
+/furiosa:update-docs 123
+```
+
+**How slash commands work:**
+1. Commands with `!` prefix execute Python scripts and capture output
+2. Claude follows skill workflows using the captured data
+3. Identical behavior to automatic trigger phrase invocation
+4. Useful when you want explicit control over skill activation
+
+**When to use slash commands vs. trigger phrases:**
+- **Slash commands**: When you want explicit, immediate invocation
+- **Trigger phrases**: For natural conversation flow with automatic detection
+
+Both methods execute the same underlying skill with identical behavior.
+
 ## 🚀 Installation
 
 ### For Claude Code
