@@ -4,30 +4,58 @@ Community-curated collection of Claude Code skills and agent tools to enhance yo
 
 ## 📦 Available Skills
 
-### Git Commit Helper
+### Git Skills
 
 Professional Git commit message generation and PR history management following industry best practices.
 
-**Features**:
-- Generate commit messages from staged changes following Chris Beams' seven rules
-- Restructure PR commit history based on final diff analysis
-- Create pull requests with auto-generated title and description
-- Update existing PR descriptions based on latest changes
+#### commit-msg
+Generate commit messages from staged changes following Chris Beams' seven rules.
+
+**Triggers**: "커밋 메시지 만들어줘", "create commit message", "write commit"
+
+#### pr-restructure
+Clean up messy commit history into atomic commits before merge.
+
+**Triggers**: "PR 히스토리 정리해줘", "clean up commit history", "organize commits"
+
+#### pr-create
+Create pull request from current branch with AI-generated title and description.
+
+**Triggers**: "PR 만들어줘", "create PR", "open PR"
+
+#### pr-update
+Update existing pull request title and description based on latest changes.
+
+**Triggers**: "PR 업데이트해줘", "update PR", "refresh PR"
+
+**Key Features**:
 - Smart base branch detection with user confirmation (handles feature-from-feature branches)
+- Final diff-based analysis (intermediate commits ignored)
 - Atomic commit suggestions with safety-first approach
+- PR template detection and support
 
-### Code Documentation 🧪 (Experimental)
+### Documentation Skills 🧪 (Experimental)
 
-> **⚠️ Experimental Feature**: This skill is under active development. The workflow, accuracy calculation methods, and output formats may change based on user feedback. Use with caution in production environments.
+> **⚠️ Experimental Feature**: These skills are under active development. The workflow, accuracy calculation methods, and output formats may change based on user feedback. Use with caution in production environments.
 
 Generate rigorous documentation from multiple sources with accuracy tracking and source citations.
 
-**Workflow** (hands-off after initial questions):
-1. **prepare-docs**: Discover sources, analyze requirements, save to file
-2. **write-docs**: Generate documentation automatically from requirements file
-3. **update-docs**: Integrate PR comments into existing documentation
+#### prepare-docs
+Discover sources, analyze requirements, and save complete requirements to file.
 
-**Features**:
+**Triggers**: "문서 준비해줘", "prepare documentation", "setup doc requirements"
+
+#### write-docs
+Generate documentation automatically from requirements file with per-sentence accuracy tracking.
+
+**Triggers**: "write-docs 실행해줘", "write documentation", "generate from requirements"
+
+#### update-docs
+Integrate PR comments into existing documentation while maintaining accuracy tracking.
+
+**Triggers**: "PR 코멘트 반영해줘", "update docs from PR comments", "incorporate PR feedback"
+
+**Key Features**:
 - Multi-source support (GitHub, web pages, Google Drive, Notion, local files)
 - Per-sentence confidence scoring (accuracy percentage)
 - Inline source citations with relative paths for every statement
@@ -44,7 +72,7 @@ Generate rigorous documentation from multiple sources with accuracy tracking and
 
 ## 🎯 Quick Start
 
-### Git Commit Helper Usage
+### Git Skills Usage
 
 ```bash
 # Generate commit message
@@ -64,12 +92,13 @@ PR 업데이트해줘
 # or: update PR
 
 # ⚠️ If skill doesn't activate, use explicit prefix:
-git-commit-helper 커밋 메시지 만들어줘
+commit-msg 커밋 메시지 만들어줘
+pr-restructure PR 히스토리 정리해줘
 ```
 
-**See full trigger phrase list**: [git-commit-helper/SKILL.md](git-commit-helper/SKILL.md#trigger-phrases)
+**See trigger phrases**: [commit-msg](commit-msg/SKILL.md), [pr-restructure](pr-restructure/SKILL.md), [pr-create](pr-create/SKILL.md), [pr-update](pr-update/SKILL.md)
 
-### Code Documentation Usage 🧪
+### Documentation Skills Usage 🧪
 
 ```bash
 # Step 1: Prepare requirements
@@ -78,56 +107,51 @@ git-commit-helper 커밋 메시지 만들어줘
 
 # Step 2: Generate from requirements
 write-docs 실행해줘
-# or: run write-docs
+# or: write documentation
 
 # Step 3: Update from PR comments
-PR #123 코멘트 반영해줘
+PR 코멘트 반영해줘
 # or: update docs from PR comments
-```
 
-**⚠️ If skill doesn't activate, use explicit prefix:**
-```bash
+# ⚠️ If skill doesn't activate, use explicit prefix:
 prepare-docs 문서 준비해줘
 write-docs 실행해줘
 update-docs PR 코멘트 반영해줘
 ```
 
-**See full trigger phrase lists**:
-- [prepare-docs/SKILL.md](prepare-docs/SKILL.md)
-- [write-docs/SKILL.md](write-docs/SKILL.md)
-- [update-docs/SKILL.md](update-docs/SKILL.md)
+**See trigger phrases**: [prepare-docs](prepare-docs/SKILL.md), [write-docs](write-docs/SKILL.md), [update-docs](update-docs/SKILL.md)
 
 ### Slash Commands (Alternative Invocation)
 
-All skills can also be invoked using slash commands with the `furiosa:` namespace:
+All skills can also be invoked using slash commands:
 
 #### Git Tools
 
 ```bash
 # Generate commit message from staged changes
-/furiosa:commit-msg
+/commit-msg
 
-# Find base branch candidates for PR
-/furiosa:pr-analyze
+# Clean up messy commit history into atomic commits
+/pr-restructure
 
 # Create pull request from current branch
-/furiosa:pr-create
+/pr-create
 
 # Update existing PR description
-/furiosa:pr-update
+/pr-update
 ```
 
 #### Documentation Tools
 
 ```bash
 # Step 1: Prepare requirements (interactive)
-/furiosa:prepare-docs
+/prepare-docs
 
 # Step 2: Generate from requirements file
-/furiosa:write-docs
+/write-docs
 
-# Step 3: Update from PR comments (requires PR number)
-/furiosa:update-docs 123
+# Step 3: Update from PR comments
+/update-docs
 ```
 
 **How slash commands work:**
@@ -162,7 +186,8 @@ Both methods execute the same underlying skill with identical behavior.
 
 ```bash
 git clone https://github.com/furiosa-ai/agent_skills
-cp -r agent_skills/git-commit-helper ~/.claude/skills/
+cd agent_skills
+cp -r commit-msg pr-restructure pr-create pr-update prepare-docs write-docs update-docs ~/.claude/skills/
 ```
 
 ### For AMP Code
@@ -196,8 +221,8 @@ git add <files>
 # Generate commit message
 /commit-msg
 
-# Find base branch and prepare PR analysis
-/pr-analyze
+# Clean up commit history before PR
+/pr-restructure
 
 # Create pull request
 /pr-create
@@ -451,18 +476,21 @@ Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45
 
 1. **Use explicit skill name prefix**:
    ```bash
-   # Git Commit Helper
-   git-commit-helper 커밋 메시지 만들어줘
+   # Git Skills
+   commit-msg 커밋 메시지 만들어줘
+   pr-restructure PR 히스토리 정리해줘
+   pr-create PR 만들어줘
+   pr-update PR 업데이트해줘
 
-   # Documentation
+   # Documentation Skills
    prepare-docs 문서 준비해줘
    write-docs 실행해줘
    update-docs PR 코멘트 반영해줘
    ```
 
 2. **Try English alternatives**:
-   - Git: "create commit message", "create pull request"
-   - Docs: "prepare documentation", "run write-docs", "update docs from PR"
+   - Git: "create commit message", "clean up commits", "create PR", "update PR"
+   - Docs: "prepare documentation", "write documentation", "update docs from PR"
 
 3. **Be more specific with context**:
    - ❌ Too vague: "문서 만들어줘"
@@ -474,17 +502,20 @@ Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45
    ```bash
    # Verify skills are installed
    ls ~/.claude/skills/
-   # Should show: git-commit-helper, prepare-docs, write-docs, update-docs
+   # Should show: commit-msg, pr-restructure, pr-create, pr-update, prepare-docs, write-docs, update-docs
 
    # Reinstall if needed
    /plugin marketplace add https://github.com/furiosa-ai/agent_skills
    ```
 
 5. **Try variations of trigger phrases**:
-   - Commit: "write commit", "generate commit message", "create commit"
-   - PR: "open PR", "make pull request", "create PR"
-   - Docs (Interactive): "plan documentation structure", "generate API reference", "update docs from PR"
-   - Docs (Automated): "prepare doc requirements", "write documentation", "improve docs"
+   - commit-msg: "write commit", "generate commit message", "create commit"
+   - pr-restructure: "clean up commits", "organize commits", "restructure history"
+   - pr-create: "open PR", "make pull request", "create PR"
+   - pr-update: "refresh PR", "update PR description"
+   - prepare-docs: "plan documentation structure", "setup doc requirements"
+   - write-docs: "generate documentation", "write docs from requirements"
+   - update-docs: "incorporate PR feedback", "apply PR suggestions"
 
 **Why this happens**: Claude uses the `description` field in SKILL.md to decide when to activate skills. If your phrase doesn't match the triggers listed, Claude might not recognize it. Using the explicit prefix (`skill-name command`) always works.
 
@@ -547,15 +578,37 @@ agent_skills/
 ├── .agents/              # AMP Code slash commands
 │   └── commands/
 │       ├── commit-msg
-│       ├── pr-analyze
+│       ├── pr-restructure
 │       ├── pr-create
 │       └── pr-update
 ├── .claude-plugin/
 │   └── marketplace.json  # Plugin marketplace configuration
-├── git-commit-helper/    # Skills at root level
-│   ├── SKILL.md
-│   ├── scripts/
-│   └── references/
+├── commands/             # Slash command definitions
+│   ├── commit-msg.md
+│   ├── pr-restructure.md
+│   ├── pr-create.md
+│   ├── pr-update.md
+│   ├── prepare-docs.md
+│   ├── write-docs.md
+│   └── update-docs.md
+├── commit-msg/           # Individual skills at root level
+│   └── SKILL.md
+├── pr-restructure/
+│   └── SKILL.md
+├── pr-create/
+│   └── SKILL.md
+├── pr-update/
+│   └── SKILL.md
+├── prepare-docs/
+│   └── SKILL.md
+├── write-docs/
+│   └── SKILL.md
+├── update-docs/
+│   └── SKILL.md
+├── scripts/              # Shared Python scripts
+│   ├── analyze_diff.py
+│   └── find_base_branch.py
+├── references/           # Shared reference documentation
 ├── AGENTS.md             # AMP Code LLM guidance
 ├── CLAUDE.md             # Architecture documentation
 ├── install-amp.sh        # AMP Code installer
@@ -566,12 +619,14 @@ agent_skills/
 
 #### Claude Code
 ```bash
-# Copy skill for local testing
-cp -r git-commit-helper ~/.claude/skills/
+# Copy skills for local testing
+cp -r commit-msg pr-restructure pr-create pr-update ~/.claude/skills/
 
 # Test with trigger phrases
 # "커밋 메시지 만들어줘"
 # "PR 히스토리 정리해줘"
+# "PR 만들어줘"
+# "PR 업데이트해줘"
 ```
 
 #### AMP Code
@@ -585,14 +640,13 @@ git add <files>
 
 # In AMP Code, use slash commands:
 # /commit-msg
-# /pr-analyze
+# /pr-restructure
 ```
 
 ### Testing Python Scripts
 
 ```bash
-# Test staged changes analysis
-cd git-commit-helper
+# Test staged changes analysis (from repo root)
 python3 scripts/analyze_diff.py --staged --json
 
 # Test base branch detection

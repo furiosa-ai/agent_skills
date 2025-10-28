@@ -6,29 +6,20 @@
   },
   "metadata": {
     "description": "FuriosaAi skills",
-    "version": "1.5.1"
+    "version": "1.5.2"
   },
   "plugins": [
     {
-      "name": "git-skills",
-      "description": "Collection of git related skills",
-      "version": "1.5.1",
+      "name": "furiosa",
+      "description": "Collection of git and documentation related skills",
+      "version": "1.5.2",
       "source": "./",
       "strict": false,
       "skills": [
         "./commit-msg",
         "./pr-restructure",
         "./pr-create",
-        "./pr-update"
-      ]
-    },
-    {
-      "name": "documentation-skills",
-      "description": "Collection of documentation skills",
-      "version": "1.5.1",
-      "source": "./",
-      "strict": false,
-      "skills": [
+        "./pr-update",
         "./prepare-docs",
         "./write-docs",
         "./update-docs"

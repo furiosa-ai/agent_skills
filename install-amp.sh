@@ -31,7 +31,7 @@ mkdir -p "$CONFIG_DIR/git-commit-helper"
 # Copy slash commands
 echo ""
 echo "Copying slash commands..."
-for cmd in commit-msg pr-analyze pr-create pr-update; do
+for cmd in commit-msg pr-restructure pr-create pr-update; do
     if [[ -f "$SCRIPT_DIR/.agents/commands/$cmd" ]]; then
         cp "$SCRIPT_DIR/.agents/commands/$cmd" "$CONFIG_DIR/commands/"
         chmod +x "$CONFIG_DIR/commands/$cmd"
@@ -72,7 +72,7 @@ echo -e "${GREEN}✅ Installation complete!${NC}"
 echo ""
 echo -e "${YELLOW}📋 Available commands in AMP Code:${NC}"
 echo "  /commit-msg  - Generate commit message from staged changes"
-echo "  /pr-analyze  - Find base branch and prepare for PR analysis"
+echo "  /pr-restructure  - Find base branch and prepare for PR analysis"
 echo "  /pr-create   - Create pull request with auto-generated description"
 echo "  /pr-update   - Update existing PR description"
 echo ""

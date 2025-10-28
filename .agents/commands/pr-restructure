@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AMP Code slash command: /pr-analyze
+# AMP Code slash command: /pr-restructure
 # Analyze PR and suggest atomic commit restructuring based on final diff
 
 set -euo pipefail
