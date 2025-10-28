@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "FuriosaAi skills",
-    "version": "1.5.2"
+    "version": "1.5.3"
   },
   "plugins": [
     {
       "name": "furiosa",
       "description": "Collection of git and documentation related skills",
-      "version": "1.5.2",
+      "version": "1.5.3",
       "source": "./",
       "strict": false,
       "skills": [

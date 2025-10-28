@@ -33,60 +33,6 @@ Skills are directories at the root level with:
 
 The YAML frontmatter in `SKILL.md` is critical - it tells Claude when to invoke the skill and what it does.
 
-### Slash Commands Structure
-
-The marketplace provides slash commands that complement automatic skill invocation via trigger phrases.
-
-**Location and Discovery**:
-- Commands stored in `commands/` directory at marketplace root
-- Auto-discovered when users install plugins from marketplace
-- Each command is a markdown file with frontmatter and instructions
-
-**Namespace Pattern**:
-- All commands use `furiosa:` prefix for consistent branding
-- Pattern: `/furiosa:<command-name>`
-- Prevents conflicts with other plugins and built-in commands
-- Single namespace for all marketplace commands
-
-**Command Architecture**:
-Commands combine three elements:
-1. **Bash execution** (`!` prefix) - Runs Python scripts and captures output
-2. **Skill invocation** - Directs Claude to use the corresponding skill
-3. **Workflow instructions** - Provides context and next steps
-
-**File Structure**:
-```
-agent_skills/
-├── commands/
-│   ├── commit-msg.md      # /furiosa:commit-msg
-│   ├── pr-analyze.md      # /furiosa:pr-analyze
-│   ├── pr-create.md       # /furiosa:pr-create
-│   ├── pr-update.md       # /furiosa:pr-update
-│   ├── prepare-docs.md    # /furiosa:prepare-docs
-│   ├── write-docs.md      # /furiosa:write-docs
-│   └── update-docs.md     # /furiosa:update-docs
-```
-
-**Available Commands**:
-
-**Git Tools**:
-- `/furiosa:commit-msg` - Generate commit message from staged changes
-- `/furiosa:pr-analyze` - Find base branch candidates for PR
-- `/furiosa:pr-create` - Create pull request from current branch
-- `/furiosa:pr-update` - Update existing PR description
-
-**Documentation Tools**:
-- `/furiosa:prepare-docs` - Configure documentation parameters (Step 1)
-- `/furiosa:write-docs` - Generate accuracy-tracked documentation (Step 2)
-- `/furiosa:update-docs <pr-number>` - Update docs from PR comments (Step 3)
-
-**Invocation Methods**:
-Users can invoke skills in two ways:
-1. **Automatic** - Use trigger phrases (e.g., "커밋 메시지 만들어줘")
-2. **Manual** - Run slash commands (e.g., `/furiosa:commit-msg`)
-
-Both methods execute the same skill with identical behavior.
-
 ### Git Commit Helper Architecture
 
 This skill implements a four-phase workflow with a unified final-diff-based approach:

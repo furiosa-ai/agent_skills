@@ -121,51 +121,6 @@ update-docs PR 코멘트 반영해줘
 
 **See trigger phrases**: [prepare-docs](prepare-docs/SKILL.md), [write-docs](write-docs/SKILL.md), [update-docs](update-docs/SKILL.md)
 
-### Slash Commands (Alternative Invocation)
-
-All skills can also be invoked using slash commands:
-
-#### Git Tools
-
-```bash
-# Generate commit message from staged changes
-/commit-msg
-
-# Clean up messy commit history into atomic commits
-/pr-restructure
-
-# Create pull request from current branch
-/pr-create
-
-# Update existing PR description
-/pr-update
-```
-
-#### Documentation Tools
-
-```bash
-# Step 1: Prepare requirements (interactive)
-/prepare-docs
-
-# Step 2: Generate from requirements file
-/write-docs
-
-# Step 3: Update from PR comments
-/update-docs
-```
-
-**How slash commands work:**
-1. Commands with `!` prefix execute Python scripts and capture output
-2. Claude follows skill workflows using the captured data
-3. Identical behavior to automatic trigger phrase invocation
-4. Useful when you want explicit control over skill activation
-
-**When to use slash commands vs. trigger phrases:**
-- **Slash commands**: When you want explicit, immediate invocation
-- **Trigger phrases**: For natural conversation flow with automatic detection
-
-Both methods execute the same underlying skill with identical behavior.
-
 ## 🚀 Installation
 
 ### For Claude Code
@@ -583,14 +538,6 @@ agent_skills/
 │       └── pr-update
 ├── .claude-plugin/
 │   └── marketplace.json  # Plugin marketplace configuration
-├── commands/             # Slash command definitions
-│   ├── commit-msg.md
-│   ├── pr-restructure.md
-│   ├── pr-create.md
-│   ├── pr-update.md
-│   ├── prepare-docs.md
-│   ├── write-docs.md
-│   └── update-docs.md
 ├── commit-msg/           # Individual skills at root level
 │   └── SKILL.md
 ├── pr-restructure/
