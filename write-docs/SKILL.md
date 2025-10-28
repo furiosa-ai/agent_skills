@@ -225,16 +225,6 @@ After completing document generation:
 
 ---
 
-## Handoff to update-docs
-
-After generating documentation, inform user:
-
-> "문서 생성이 완료되었습니다. PR 피드백을 받으시면 update-docs 스킬로 문서를 업데이트할 수 있습니다."
->
-> (Documentation generation complete. If you receive PR feedback, you can update the documentation using the update-docs skill.)
-
----
-
 ## Conclusion
 
 After completing this generation workflow, you should have:
@@ -247,5 +237,3 @@ After completing this generation workflow, you should have:
 ✅ Flagged contradictions with TODO comments
 ✅ Documented analysis gaps in-place (no separate summary)
 ✅ Verified all source links are valid
-
-**Next action:** User reviews document, creates PR, uses update-docs for PR feedback integration.

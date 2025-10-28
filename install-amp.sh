@@ -46,8 +46,8 @@ done
 echo ""
 echo "Copying Python scripts..."
 for script in analyze_diff.py find_base_branch.py; do
-    if [[ -f "$SCRIPT_DIR/git-commit-helper/scripts/$script" ]]; then
-        cp "$SCRIPT_DIR/git-commit-helper/scripts/$script" "$CONFIG_DIR/scripts/"
+    if [[ -f "$SCRIPT_DIR/scripts/$script" ]]; then
+        cp "$SCRIPT_DIR/scripts/$script" "$CONFIG_DIR/scripts/"
         chmod +x "$CONFIG_DIR/scripts/$script"
         echo -e "  ${GREEN}✓${NC} $script"
     else

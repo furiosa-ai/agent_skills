@@ -49,7 +49,7 @@ Always follow these rules for commit messages and PR titles:
 
 1. Run the analyzer script:
    ```bash
-   python3 git-commit-helper/scripts/analyze_diff.py --staged --json
+   python3 scripts/analyze_diff.py --staged --json
    ```
 
 2. Analyze the returned diff to understand:
@@ -86,7 +86,7 @@ Fixes #789
 
 1. Find base branch candidates:
    ```bash
-   python3 git-commit-helper/scripts/find_base_branch.py --json
+   python3 scripts/find_base_branch.py --json
    ```
 
 2. **Always show candidates to user and let them select**:
@@ -101,7 +101,7 @@ Fixes #789
 
 3. After user selects, analyze the final diff:
    ```bash
-   python3 git-commit-helper/scripts/analyze_diff.py <selected-base> --json
+   python3 scripts/analyze_diff.py <selected-base> --json
    ```
 
 4. Read the `total_diff` field to understand final state (NOT individual commits)
@@ -140,13 +140,13 @@ Fixes #789
 
 2. Find base branch (same as restructuring):
    ```bash
-   python3 git-commit-helper/scripts/find_base_branch.py --json
+   python3 scripts/find_base_branch.py --json
    ```
    Show candidates and let user select.
 
 3. Analyze final diff (may reuse recent analysis):
    ```bash
-   python3 git-commit-helper/scripts/analyze_diff.py <base> --json
+   python3 scripts/analyze_diff.py <base> --json
    ```
    
    **Large PR handling**:
@@ -192,7 +192,7 @@ Fixes #789
 
 2. Analyze latest final diff (may reuse recent analysis):
    ```bash
-   python3 git-commit-helper/scripts/analyze_diff.py <base-from-pr> --json
+   python3 scripts/analyze_diff.py <base-from-pr> --json
    ```
 
 3. Check for PR template (same as creation)
@@ -219,12 +219,12 @@ Fixes #789
 ### Helper Scripts
 
 **analyze_diff.py**:
-- Staged mode: `python3 git-commit-helper/scripts/analyze_diff.py --staged --json`
-- Range mode: `python3 git-commit-helper/scripts/analyze_diff.py <base> --json [--allow-large]`
+- Staged mode: `python3 scripts/analyze_diff.py --staged --json`
+- Range mode: `python3 scripts/analyze_diff.py <base> --json [--allow-large]`
 - Returns diff, stats, and diff_type (full/additions_only/full_forced)
 
 **find_base_branch.py**:
-- Usage: `python3 git-commit-helper/scripts/find_base_branch.py --json [--limit N]`
+- Usage: `python3 scripts/find_base_branch.py --json [--limit N]`
 - Returns ranked list of base branch candidates
 - User must select correct base before analyzing diff
 
@@ -291,7 +291,7 @@ gh pr edit --title "..." --body "..."
 
 ## Reference Documentation
 
-See `git-commit-helper/references/commit-guide.md` for detailed guidance on:
+See `references/commit-guide.md` for detailed guidance on:
 - The seven rules with examples
 - Atomic commit best practices
 - Anti-patterns to avoid

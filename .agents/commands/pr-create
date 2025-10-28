@@ -9,15 +9,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Try to find find_base_branch.py in multiple locations
-if [[ -f "$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py" ]]; then
-    FIND_BASE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+if [[ -f "$REPO_ROOT/scripts/find_base_branch.py" ]]; then
+    FIND_BASE_SCRIPT="$REPO_ROOT/scripts/find_base_branch.py"
 elif [[ -f "$HOME/.config/amp/scripts/find_base_branch.py" ]]; then
     FIND_BASE_SCRIPT="$HOME/.config/amp/scripts/find_base_branch.py"
 else
     echo "❌ Error: Cannot find find_base_branch.py"
     echo ""
     echo "Expected locations:"
-    echo "  - $REPO_ROOT/git-commit-helper/scripts/find_base_branch.py"
+    echo "  - $REPO_ROOT/scripts/find_base_branch.py"
     echo "  - $HOME/.config/amp/scripts/find_base_branch.py"
     exit 1
 fi
@@ -72,7 +72,7 @@ echo "**Step 2: After you select, I will:**"
 echo ""
 echo "1. **Analyze final diff** with smart fallback:"
 echo "   \`\`\`bash"
-echo "   python3 git-commit-helper/scripts/analyze_diff.py <base> --json"
+echo "   python3 scripts/analyze_diff.py <base> --json"
 echo "   # Or: ~/.config/amp/scripts/analyze_diff.py <base> --json"
 echo "   \`\`\`"
 echo "   - ≤5000 lines: Full diff"

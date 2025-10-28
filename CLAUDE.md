@@ -391,7 +391,7 @@ The git-commit-helper skill has been adapted for AMP Code (Sourcegraph's coding 
 
 Each slash command:
 - Is an executable bash script
-- Finds and runs Python scripts from `git-commit-helper/scripts/`
+- Finds and runs Python scripts from `scripts/` at plugin root
 - Works in both workspace (`.agents/commands/`) and global (`~/.config/amp/commands/`) modes
 - Outputs JSON data from Python scripts
 - Includes workflow hints (numbered steps) for AMP's LLM
@@ -433,7 +433,7 @@ Each slash command:
 - Each command is stateless and single-purpose
 
 **4. Script Location Flexibility**
-- Commands check workspace first: `$REPO_ROOT/git-commit-helper/scripts/`
+- Commands check workspace first: `$REPO_ROOT/scripts/`
 - Fall back to global: `~/.config/amp/scripts/`
 - Works for both per-project and global installations
 
@@ -467,7 +467,7 @@ git add <files>
 # - Reference: "See AGENTS.md section 'Create Pull Request'"
 
 # User selects base branch
-# AMP runs: python3 git-commit-helper/scripts/analyze_diff.py <base> --json
+# AMP runs: python3 scripts/analyze_diff.py <base> --json
 # AMP checks for PR template
 # AMP generates title/body from final diff
 # User approves, AMP creates PR
@@ -484,11 +484,13 @@ agent_skills/
 │       ├── pr-create
 │       └── pr-update
 ├── AGENTS.md              # AMP Code LLM guidance
-├── git-commit-helper/     # Shared skill directory
+├── scripts/               # Shared Python scripts (plugin root)
+│   ├── analyze_diff.py
+│   ├── find_base_branch.py
+│   ├── fetch_pr_comments.py
+│   └── reply_to_comment.py
+├── git-commit-helper/     # Shared references
 │   ├── SKILL.md           # Claude Code skill definition
-│   ├── scripts/           # Shared Python scripts
-│   │   ├── analyze_diff.py
-│   │   └── find_base_branch.py
 │   └── references/        # Shared reference docs
 └── install-amp.sh         # AMP Code installer
 ```
@@ -500,7 +502,8 @@ agent_skills/
 project/
 ├── .agents/
 │   └── commands/          # Slash commands
-└── git-commit-helper/     # Python scripts
+├── scripts/               # Python scripts
+└── git-commit-helper/     # References
 ```
 
 **Global Installation** (`~/.config/amp/`):
@@ -513,7 +516,9 @@ project/
 │   └── pr-update
 ├── scripts/               # Python scripts
 │   ├── analyze_diff.py
-│   └── find_base_branch.py
+│   ├── find_base_branch.py
+│   ├── fetch_pr_comments.py
+│   └── reply_to_comment.py
 ├── git-commit-helper/     # SKILL.md for @-mention
 │   ├── SKILL.md
 │   └── references/

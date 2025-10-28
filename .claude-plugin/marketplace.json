@@ -2,20 +2,33 @@
   "name": "agent-skills",
   "owner": {
     "name": "FuriosaAI",
-    "email": "engineering@furiosa.ai"
+    "email": "boncheol.gu@furiosa.ai"
   },
   "metadata": {
-    "description": "Community-curated collection of Claude Code skills and agent tools",
-    "version": "1.4.1"
+    "description": "FuriosaAi skills",
+    "version": "1.5.1"
   },
   "plugins": [
     {
-      "name": "furiosa",
-      "description": "Git commit messages (커밋 메시지), PR creation/updates (PR 만들어줘), commit history cleanup (히스토리 정리), and automated technical documentation with accuracy tracking (자동 코드 문서화). Triggers: 'commit message', 'create PR', 'update PR', 'restructure commits', 'prepare documentation', 'write documentation', 'update docs from PR'.",
+      "name": "git-skills",
+      "description": "Collection of git related skills",
+      "version": "1.5.1",
       "source": "./",
       "strict": false,
       "skills": [
-        "./git-commit-helper",
+        "./commit-msg",
+        "./pr-restructure",
+        "./pr-create",
+        "./pr-update"
+      ]
+    },
+    {
+      "name": "documentation-skills",
+      "description": "Collection of documentation skills",
+      "version": "1.5.1",
+      "source": "./",
+      "strict": false,
+      "skills": [
         "./prepare-docs",
         "./write-docs",
         "./update-docs"

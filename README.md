@@ -495,7 +495,7 @@ Parses input string into AST and validates syntax ([Source](../src/parser.rs#L45
 **Problem**: `python: command not found`
 ```bash
 # Solution: Use python3 explicitly
-python3 ~/.claude/skills/git-commit-helper/scripts/analyze_diff.py --staged --json
+python3 ~/.claude/skills/agent-skills/scripts/analyze_diff.py --staged --json
 ```
 
 **Problem**: No base branch candidates found
@@ -516,7 +516,7 @@ git log <base_branch>..HEAD  # Should show commits
 **Problem**: Permission denied on scripts
 ```bash
 # Solution: Make scripts executable
-chmod +x ~/.claude/skills/git-commit-helper/scripts/*.py
+chmod +x ~/.claude/skills/agent-skills/scripts/*.py
 ```
 
 ## 🛠️ Development
@@ -623,7 +623,7 @@ When adding new slash commands or modifying workflows:
    ```bash
    # Test workspace mode
    cd /path/to/test-repo
-   /commit-msg  # Should find scripts in git-commit-helper/scripts/
+   /commit-msg  # Should find scripts in scripts/
 
    # Test global mode
    ./install-amp.sh

@@ -30,7 +30,6 @@ This skill prepares complete documentation requirements for automated generation
 - **Interactive setup** - Steps 1-3 ask user questions to define scope
 - **Automated discovery** - Step 4 automatically finds related sources and builds content map
 - **Saves requirements to file** - Always outputs `docs/doc-requirements.md`
-- **Next step:** User runs write-docs skill to generate documentation automatically
 
 ---
 
@@ -305,4 +304,3 @@ After completing this preparation workflow, you should have:
 ✅ Content map showing what to document from where
 ✅ Requirements file saved to `docs/doc-requirements.md`
 
-**Next:** User runs "write-docs 실행해줘" to generate documentation automatically from this requirements file.

@@ -9,15 +9,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Try to find scripts in multiple locations
-if [[ -f "$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py" ]]; then
-    ANALYZE_SCRIPT="$REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+if [[ -f "$REPO_ROOT/scripts/analyze_diff.py" ]]; then
+    ANALYZE_SCRIPT="$REPO_ROOT/scripts/analyze_diff.py"
 elif [[ -f "$HOME/.config/amp/scripts/analyze_diff.py" ]]; then
     ANALYZE_SCRIPT="$HOME/.config/amp/scripts/analyze_diff.py"
 else
     echo "❌ Error: Cannot find analyze_diff.py"
     echo ""
     echo "Expected locations:"
-    echo "  - $REPO_ROOT/git-commit-helper/scripts/analyze_diff.py"
+    echo "  - $REPO_ROOT/scripts/analyze_diff.py"
     echo "  - $HOME/.config/amp/scripts/analyze_diff.py"
     exit 1
 fi
