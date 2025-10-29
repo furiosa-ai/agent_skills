@@ -19,19 +19,22 @@ Generate professional commit messages from staged changes following Chris Beams'
 **NEVER cd to skill folder.** Always execute scripts from user's current working directory to preserve git repository context.
 
 **Script execution:**
-- Scripts are at plugin root: `scripts/analyze_diff.py`
-- Compute absolute path: `[marketplace_root]/scripts/analyze_diff.py`
-- You know where the marketplace is installed - use that as base
-- Scripts must run from user's current working directory
+- You know where this skill's SKILL.md is located when you load it
+- Marketplace root = parent directory of the skill directory
+- Scripts are at: `<marketplace_root>/scripts/analyze_diff.py`
+- Compute the path, then execute from user's current working directory
 
 ## Workflow
 
 ### Step 1: Extract Staged Changes
 
-Execute the analyze_diff script to get staged changes:
+Execute the analyze_diff script from the marketplace scripts directory:
 
 ```bash
-python3 scripts/analyze_diff.py --staged --json
+# Example: If skill is at ~/.claude/plugins/marketplaces/agent-skills/commit-msg/SKILL.md
+# Then marketplace root is ~/.claude/plugins/marketplaces/agent-skills/
+# And script is at ~/.claude/plugins/marketplaces/agent-skills/scripts/analyze_diff.py
+python3 <marketplace_root>/scripts/analyze_diff.py --staged --json
 ```
 
 This returns:

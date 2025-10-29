@@ -19,12 +19,12 @@ Analyze final diff and suggest atomic commit organization for cleaner PR history
 **NEVER cd to skill folder.** Always execute scripts from user's current working directory to preserve git repository context.
 
 **Script execution:**
-- Scripts are at plugin root: `scripts/`
-- `scripts/find_base_branch.py` - Find base candidates
-- `scripts/analyze_diff.py` - Analyze final diff
-- Compute absolute path: `[marketplace_root]/scripts/[script_name].py`
-- You know where the marketplace is installed - use that as base
-- Scripts must run from user's current working directory
+- You know where this skill's SKILL.md is located when you load it
+- Marketplace root = parent directory of the skill directory
+- Scripts are at: `<marketplace_root>/scripts/`
+  - `find_base_branch.py` - Find base candidates
+  - `analyze_diff.py` - Analyze final diff
+- Compute the path, then execute from user's current working directory
 
 ## Important Principles
 
@@ -40,7 +40,8 @@ Analyze final diff and suggest atomic commit organization for cleaner PR history
 Execute find_base_branch to get candidates:
 
 ```bash
-python3 scripts/find_base_branch.py --json
+# Compute path from skill location, then execute from user's directory
+python3 <marketplace_root>/scripts/find_base_branch.py --json
 ```
 
 Show candidates to user and let them select the correct base.
@@ -60,7 +61,7 @@ Show candidates to user and let them select the correct base.
 ⚠️ **IMPORTANT**: Analyze final diff (base..HEAD), NOT individual commits.
 
 ```bash
-python3 scripts/analyze_diff.py <base> --json
+python3 <marketplace_root>/scripts/analyze_diff.py <base> --json
 ```
 
 Returns:

@@ -33,12 +33,12 @@ This skill updates existing documentation based on PR comments and feedback. Eac
 ## ⚠️ Critical Execution Rules
 
 **Script execution:**
-- Scripts are at plugin root: `scripts/`
-- `scripts/fetch_pr_comments.py` - Fetch PR comments
-- `scripts/reply_to_comment.py` - Reply to PR comments
-- Compute absolute path: `[marketplace_root]/scripts/[script_name].py`
-- You know where the marketplace is installed - use that as base
-- Scripts must run from user's current working directory
+- You know where this skill's SKILL.md is located when you load it
+- Marketplace root = parent directory of the skill directory
+- Scripts are at: `<marketplace_root>/scripts/`
+  - `fetch_pr_comments.py` - Fetch PR comments
+  - `reply_to_comment.py` - Reply to PR comments
+- Compute the path, then execute from user's current working directory
 
 ---
 
@@ -84,7 +84,7 @@ Use Python script to fetch **unresolved PR comments only**.
 **Fetch unresolved comments:**
 
 ```bash
-python3 [skill_directory]/scripts/fetch_pr_comments.py {owner} {repo} {pr_number} --json
+python3 <marketplace_root>/scripts/fetch_pr_comments.py {owner} {repo} {pr_number} --json
 ```
 
 **Script automatically:**
@@ -221,7 +221,7 @@ I've left this unresolved until we can confirm the correct information.
 **Post reply using Python script:**
 
 ```bash
-python3 [skill_directory]/scripts/reply_to_comment.py {owner} {repo} {comment_id} \
+python3 <marketplace_root>/scripts/reply_to_comment.py {owner} {repo} {comment_id} \
   --body "Thanks for the feedback! I've updated..." [--json]
 ```
 

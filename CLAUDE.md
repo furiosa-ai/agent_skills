@@ -28,10 +28,18 @@ Skills are directories at the root level with:
    - `name`: Skill identifier (e.g., `git-commit-helper`)
    - `description`: When Claude should invoke this skill (triggers, use cases)
    - Body contains detailed instructions for Claude on how to execute the skill
-2. **`scripts/`** - Optional directory for Python helper scripts
+2. **`scripts/`** - Shared directory at marketplace root for Python helper scripts
 3. **`references/`** - Optional directory for reference documentation
 
 The YAML frontmatter in `SKILL.md` is critical - it tells Claude when to invoke the skill and what it does.
+
+**Script Location Pattern**:
+- Scripts are shared across all skills at marketplace root: `<marketplace_root>/scripts/`
+- When Claude loads a skill, it knows the location of the skill's `SKILL.md` file
+- Marketplace root = parent directory of the skill directory
+- Example: If skill is at `~/.claude/plugins/marketplaces/agent-skills/commit-msg/SKILL.md`, then scripts are at `~/.claude/plugins/marketplaces/agent-skills/scripts/`
+- Skills compute the absolute path at runtime: `<marketplace_root>/scripts/<script_name>.py`
+- Scripts are always executed from the user's current working directory (to preserve git context)
 
 ### Git Commit Helper Architecture
 

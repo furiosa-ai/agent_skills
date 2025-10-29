@@ -19,12 +19,12 @@ Generate PR title and description from final diff analysis and create a new pull
 **NEVER cd to skill folder.** Always execute scripts from user's current working directory to preserve git repository context.
 
 **Script execution:**
-- Scripts are at plugin root: `scripts/`
-- `scripts/find_base_branch.py` - Find base candidates
-- `scripts/analyze_diff.py` - Analyze final diff
-- Compute absolute path: `[marketplace_root]/scripts/[script_name].py`
-- You know where the marketplace is installed - use that as base
-- Scripts must run from user's current working directory
+- You know where this skill's SKILL.md is located when you load it
+- Marketplace root = parent directory of the skill directory
+- Scripts are at: `<marketplace_root>/scripts/`
+  - `find_base_branch.py` - Find base candidates
+  - `analyze_diff.py` - Analyze final diff
+- Compute the path, then execute from user's current working directory
 
 ## Important Principles
 
@@ -49,7 +49,7 @@ If PR exists, inform user that PR already exists for this branch.
 Execute find_base_branch to get candidates:
 
 ```bash
-python3 scripts/find_base_branch.py --json
+python3 <marketplace_root>/scripts/find_base_branch.py --json
 ```
 
 Show candidates to user and let them select the correct base.
@@ -80,10 +80,10 @@ Show candidates to user and let them select the correct base.
 
 ```bash
 # Normal execution (auto-fallback)
-python3 scripts/analyze_diff.py <base> --json
+python3 <marketplace_root>/scripts/analyze_diff.py <base> --json
 
 # Force large PR (if additions > 5000)
-python3 scripts/analyze_diff.py <base> --json --allow-large
+python3 <marketplace_root>/scripts/analyze_diff.py <base> --json --allow-large
 ```
 
 **Reuse recent analysis**: If user ran pr-analyze with same base recently, and got successful diff, can reuse that analysis for efficiency.

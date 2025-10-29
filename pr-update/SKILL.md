@@ -19,11 +19,11 @@ Refresh PR title and description based on latest final diff analysis.
 **NEVER cd to skill folder.** Always execute scripts from user's current working directory to preserve git repository context.
 
 **Script execution:**
-- Scripts are at plugin root: `scripts/`
-- `scripts/analyze_diff.py` - Analyze final diff
-- Compute absolute path: `[marketplace_root]/scripts/analyze_diff.py`
-- You know where the marketplace is installed - use that as base
-- Scripts must run from user's current working directory
+- You know where this skill's SKILL.md is located when you load it
+- Marketplace root = parent directory of the skill directory
+- Scripts are at: `<marketplace_root>/scripts/`
+  - `analyze_diff.py` - Analyze final diff
+- Compute the path, then execute from user's current working directory
 
 ## Important Principles
 
@@ -64,10 +64,10 @@ Returns:
 
 ```bash
 # Normal execution (auto-fallback)
-python3 scripts/analyze_diff.py <base> --json
+python3 <marketplace_root>/scripts/analyze_diff.py <base> --json
 
 # Force large PR (if additions > 5000)
-python3 scripts/analyze_diff.py <base> --json --allow-large
+python3 <marketplace_root>/scripts/analyze_diff.py <base> --json --allow-large
 ```
 
 **Reuse recent analysis**: If user ran this or pr-create recently with same base, and got successful diff, can reuse that analysis for efficiency.
